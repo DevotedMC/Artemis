@@ -4,28 +4,28 @@ import java.util.UUID;
 
 import org.json.JSONObject;
 
+import com.github.civcraft.zeus.model.ZeusLocation;
 import com.github.civcraft.zeus.rabbit.RabbitMessage;
+import com.google.common.base.Preconditions;
 
 public class PlayerInitTransfer extends RabbitMessage {
 	
 	private UUID player;
-	private int x,y,z;
+	private ZeusLocation location;
 
-	public PlayerInitTransfer(String transactionID, UUID player, int x, int y, int z) {
+	public PlayerInitTransfer(String transactionID, UUID player, ZeusLocation location) {
 		super(transactionID);
+		Preconditions.checkNotNull(player);
+		Preconditions.checkNotNull(location);
 		this.player = player;
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.location = location;
 	}
 
 	@Override
 	protected void enrichJson(JSONObject json) {
 		json.put("player", player);
         JSONObject obj = new JSONObject();
-		obj.put("x", x);
-		obj.put("y", y);
-		obj.put("z", z);
+		location.writeToJson(obj);
 		json.put("loc", obj);
 	}
 

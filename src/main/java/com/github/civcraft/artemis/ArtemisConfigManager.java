@@ -14,6 +14,7 @@ public class ArtemisConfigManager extends CoreConfigManager {
 	private String incomingQueue;
 	private String outgoingQueue;
 	private String ownIdentifier;
+	private String worldName;
 
 	public ArtemisConfigManager(ACivMod plugin) {
 		super(plugin);
@@ -46,7 +47,12 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		outgoingQueue = config.getString("rabbitmq.outgoingQueue");
 		ownIdentifier = config.getString("own_identifier");
 		connectionFactory = parseRabbitConfig();
+		worldName = config.getString("world_name");
 		return true;
+	}
+	
+	public String getWorldName() {
+		return worldName;
 	}
 	
 	public String getOwnIdentifier() {

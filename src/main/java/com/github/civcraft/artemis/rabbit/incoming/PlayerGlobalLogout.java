@@ -6,8 +6,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.civcraft.artemis.ArtemisPlugin;
-import com.github.civcraft.artemis.GlobalPlayerData;
-import com.github.civcraft.artemis.GlobalPlayerManager;
+import com.github.civcraft.zeus.model.PlayerData;
+import com.github.civcraft.zeus.model.PlayerManager;
 import com.github.civcraft.zeus.rabbit.incoming.StaticRabbitCommand;
 import com.github.civcraft.zeus.servers.ConnectedServer;
 
@@ -16,12 +16,12 @@ public class PlayerGlobalLogout extends StaticRabbitCommand {
 	@Override
 	public void handleRequest(ConnectedServer sendingServer, JSONObject data) {
 		JSONArray players = data.getJSONArray("players");
-		GlobalPlayerManager playerMan = ArtemisPlugin.getInstance().getGlobalPlayerManager();
+		PlayerManager<PlayerData> playerMan = ArtemisPlugin.getInstance().getPlayerDataManager();
 		for(Object obj : players) {
 			JSONObject json = (JSONObject) obj;
 			String name = json.getString("name");
 			UUID uuid = UUID.fromString(json.getString("uuid"));
-			playerMan.removePlayer(new GlobalPlayerData(uuid, name));
+			playerMan.removePlayer(new PlayerData(uuid, name));
 		}}
 
 	@Override

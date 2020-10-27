@@ -2,7 +2,10 @@ package com.github.civcraft.artemis;
 
 import org.bukkit.Bukkit;
 
+import com.github.civcraft.artemis.nbt.CustomWorldNBTStorage;
 import com.github.civcraft.artemis.rabbit.RabbitHandler;
+import com.github.civcraft.zeus.model.PlayerData;
+import com.github.civcraft.zeus.model.PlayerManager;
 import com.github.civcraft.zeus.model.TransactionIdManager;
 import com.github.civcraft.zeus.servers.ZeusServer;
 
@@ -19,7 +22,16 @@ public final class ArtemisPlugin extends ACivMod {
 	private RabbitHandler rabbitHandler;
 	private ArtemisConfigManager configManager;
 	private TransactionIdManager transactionIdManager;
-	private GlobalPlayerManager globalPlayerManager;
+	private PlayerManager<PlayerData> globalPlayerTracker;
+	private TransitManager transitManager;
+	private ArtemisPlayerDataCache playerDataCache;
+	private ZeusServer zeus;
+	
+	@Override
+	public void onLoad() {
+		super.onLoad();
+		CustomWorldNBTStorage.insertCustomNBTHandler();
+	}
 
 	@Override
 	public void onEnable() {
@@ -30,16 +42,18 @@ public final class ArtemisPlugin extends ACivMod {
 			Bukkit.shutdown();
 			return;
 		}
-		this.globalPlayerManager = new GlobalPlayerManager();
+		this.zeus = new ZeusServer();
+		this.playerDataCache = new ArtemisPlayerDataCache();
+		this.transitManager = new TransitManager();
+		this.globalPlayerTracker = new PlayerManager<>();
 		this.transactionIdManager = new TransactionIdManager(configManager.getOwnIdentifier());
 		this.rabbitHandler = new RabbitHandler(configManager.getConnectionFactory(),
 				configManager.getIncomingRabbitQueue(), configManager.getOutgoingRabbitQueue(), transactionIdManager,
-				getLogger(), new ZeusServer());
+				getLogger(), zeus);
 		if (!rabbitHandler.setup()) {
 			Bukkit.shutdown();
 			return;
 		}
-
 		rabbitHandler.beginAsyncListen();
 	}
 
@@ -49,10 +63,26 @@ public final class ArtemisPlugin extends ACivMod {
 		rabbitHandler.shutdown();
 	}
 	
-	public GlobalPlayerManager getGlobalPlayerManager() {
-		return globalPlayerManager;
+	public PlayerManager<PlayerData> getPlayerDataManager() {
+		return globalPlayerTracker;
+	}
+	
+	public ArtemisConfigManager getConfigManager() {
+		return configManager;
+	}
+	
+	public ArtemisPlayerDataCache getPlayerDataCache() {
+		return playerDataCache;
 	}
 
+	public ZeusServer getZeus() {
+		return zeus;
+	}
+	
+	public TransitManager getTransitManager() {
+		return transitManager;
+	}
+	
 	public RabbitHandler getRabbitHandler() {
 		return rabbitHandler;
 	}
