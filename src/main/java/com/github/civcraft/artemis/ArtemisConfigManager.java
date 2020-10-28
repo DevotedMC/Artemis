@@ -2,6 +2,8 @@ package com.github.civcraft.artemis;
 
 import org.bukkit.configuration.ConfigurationSection;
 
+import com.github.civcraft.zeus.model.ConnectedMapState;
+import com.github.civcraft.zeus.model.ZeusLocation;
 import com.rabbitmq.client.ConnectionFactory;
 
 import vg.civcraft.mc.civmodcore.ACivMod;
@@ -15,6 +17,7 @@ public class ArtemisConfigManager extends CoreConfigManager {
 	private String outgoingQueue;
 	private String ownIdentifier;
 	private String worldName;
+	private ConnectedMapState connectedMapState;
 
 	public ArtemisConfigManager(ACivMod plugin) {
 		super(plugin);
@@ -41,18 +44,38 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		return connFac;
 	}
 	
+	private boolean parseMapPosition(ConfigurationSection config) {
+		if (config == null) {
+			return false;
+		}
+		int xSize = config.getInt("x_size");
+		int zSize = config.getInt("z_size");
+		String world = config.getString("world");
+		int lowerX = config.getInt("lower_x_bound");
+		int lowerZ = config.getInt("lower_z_bound");
+		ZeusLocation corner = new ZeusLocation(world, lowerX, 0, lowerZ);
+		connectedMapState = new ConnectedMapState(corner, xSize, zSize);
+		return true;
+	}
+	
 	protected boolean parseInternal(ConfigurationSection config) {
 		this.config = config;
+		if (!parseMapPosition(config.getConfigurationSection("position"))) {
+			return false;
+		}
 		incomingQueue = config.getString("rabbitmq.incomingQueue");
 		outgoingQueue = config.getString("rabbitmq.outgoingQueue");
 		ownIdentifier = config.getString("own_identifier");
 		connectionFactory = parseRabbitConfig();
-		worldName = config.getString("world_name");
 		return true;
 	}
 	
 	public String getWorldName() {
-		return worldName;
+		return connectedMapState.getWorld();
+	}
+	
+	public ConnectedMapState getConnectedMapState() {
+		return connectedMapState;
 	}
 	
 	public String getOwnIdentifier() {

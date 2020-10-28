@@ -38,7 +38,7 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 		// create session which will be used to save data locally if Zeus is unavailable
 		PlayerDataTransferSession session = new PlayerDataTransferSession(ArtemisPlugin.getInstance().getZeus(),
 				transactionId, entityhuman.getUniqueID());
-		ArtemisPlugin.getInstance().getTransactionIdManager().putSession(transactionId, session);
+		ArtemisPlugin.getInstance().getTransactionIdManager().putSession(session);
 		// save both location and data in that session
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
