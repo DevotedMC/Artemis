@@ -16,7 +16,6 @@ public class ArtemisConfigManager extends CoreConfigManager {
 	private String incomingQueue;
 	private String outgoingQueue;
 	private String ownIdentifier;
-	private String worldName;
 	private ConnectedMapState connectedMapState;
 
 	public ArtemisConfigManager(ACivMod plugin) {
@@ -54,7 +53,7 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		int lowerX = config.getInt("lower_x_bound");
 		int lowerZ = config.getInt("lower_z_bound");
 		ZeusLocation corner = new ZeusLocation(world, lowerX, 0, lowerZ);
-		connectedMapState = new ConnectedMapState(corner, xSize, zSize);
+		connectedMapState = new ConnectedMapState(null, corner, xSize, zSize);
 		return true;
 	}
 	

@@ -5,7 +5,7 @@ import org.json.JSONObject;
 import com.github.civcraft.artemis.ArtemisConfigManager;
 import com.github.civcraft.artemis.ArtemisPlugin;
 import com.github.civcraft.zeus.rabbit.RabbitMessage;
-import com.google.gson.JsonObject;
+import com.github.civcraft.zeus.rabbit.incoming.artemis.ArtemisStartupHandler;
 
 public class ArtemisStartup extends RabbitMessage {
 
@@ -21,12 +21,12 @@ public class ArtemisStartup extends RabbitMessage {
 		config.getConnectedMapState().getUpperLeftCorner().writeToJson(pos);
 		pos.put("x_size", config.getConnectedMapState().getXSize());
 		pos.put("z_size", config.getConnectedMapState().getZSize());
+		json.put("pos", pos);
 	}
 
 	@Override
 	public String getIdentifier() {
-		// TODO Auto-generated method stub
-		return null;
+		return ArtemisStartupHandler.ID;
 	}
 
 }

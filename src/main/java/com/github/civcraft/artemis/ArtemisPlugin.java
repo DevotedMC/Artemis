@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 
 import com.github.civcraft.artemis.nbt.CustomWorldNBTStorage;
 import com.github.civcraft.artemis.rabbit.RabbitHandler;
+import com.github.civcraft.artemis.rabbit.outgoing.ArtemisStartup;
 import com.github.civcraft.zeus.model.PlayerData;
 import com.github.civcraft.zeus.model.PlayerManager;
 import com.github.civcraft.zeus.model.TransactionIdManager;
@@ -55,6 +56,7 @@ public final class ArtemisPlugin extends ACivMod {
 			return;
 		}
 		rabbitHandler.beginAsyncListen();
+		rabbitHandler.sendMessage(new ArtemisStartup(transactionIdManager.pullNewTicket()));
 	}
 
 	@Override
