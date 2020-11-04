@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import com.github.civcraft.artemis.ArtemisPlugin;
 import com.github.civcraft.zeus.rabbit.incoming.InteractiveRabbitCommand;
+import com.github.civcraft.zeus.rabbit.outgoing.artemis.RejectPlayerDataRequest;
 import com.github.civcraft.zeus.rabbit.sessions.PlayerDataTransferSession;
 import com.github.civcraft.zeus.servers.ConnectedServer;
 
@@ -17,7 +18,7 @@ public class HandleRejectPlayerDataRequest extends InteractiveRabbitCommand<Play
 
 	@Override
 	public String getIdentifier() {
-		return "reject_player_data_request";
+		return RejectPlayerDataRequest.ID;
 	}
 
 	@Override

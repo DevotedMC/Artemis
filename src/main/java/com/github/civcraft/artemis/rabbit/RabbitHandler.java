@@ -1,6 +1,7 @@
 package com.github.civcraft.artemis.rabbit;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
@@ -9,6 +10,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.github.civcraft.artemis.ArtemisPlugin;
 import com.github.civcraft.zeus.model.TransactionIdManager;
 import com.github.civcraft.zeus.rabbit.RabbitMessage;
+import com.github.civcraft.zeus.rabbit.ZeusRabbitGateway;
+import com.github.civcraft.zeus.rabbit.incoming.InteractiveRabbitCommand;
 import com.github.civcraft.zeus.servers.ZeusServer;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -37,6 +40,7 @@ public class RabbitHandler {
 	}
 
 	public boolean setup() {
+		InteractiveRabbitCommand.setSendingLambda((s,p) -> sendMessage(p));	
 		try {
 			conn = connectionFactory.newConnection();
 			incomingChannel = conn.createChannel();
@@ -57,7 +61,10 @@ public class RabbitHandler {
 			public void run() {
 				DeliverCallback deliverCallback = (consumerTag, delivery) -> {
 					try {
-						String message = new String(delivery.getBody(), "UTF-8");
+						String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+						if (ArtemisPlugin.getInstance().getConfigManager().debugRabbit()) {
+							logger.info("[X] R_IN: " + message);
+						}
 						inputProcessor.handle(zeus, message);
 					} catch (Exception e) {
 						logger.severe("Exception in rabbit handling: " + e.toString());
@@ -86,7 +93,11 @@ public class RabbitHandler {
 
 	public boolean sendMessage(RabbitMessage message) {
 		try {
-			outgoingChannel.basicPublish("", outgoingQueue, null, message.getJSON().toString().getBytes("UTF-8"));
+			String strMsg = message.getJSON().toString();
+			if (ArtemisPlugin.getInstance().getConfigManager().debugRabbit()) {
+				logger.info("[X] R_OUT: " + strMsg);
+			}
+			outgoingChannel.basicPublish("", outgoingQueue, null, strMsg.getBytes(StandardCharsets.UTF_8));			
 			return true;
 		} catch (IOException e) {
 			logger.severe("Failed to send rabbit message: " + e);

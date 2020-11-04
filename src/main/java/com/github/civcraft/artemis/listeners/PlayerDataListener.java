@@ -9,6 +9,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import com.github.civcraft.artemis.ArtemisPlugin;
 import com.github.civcraft.artemis.rabbit.RabbitHandler;
 import com.github.civcraft.artemis.rabbit.outgoing.RequestPlayerData;
+import com.github.civcraft.zeus.rabbit.sessions.PlayerDataTransferSession;
 
 public class PlayerDataListener implements Listener {
 	
@@ -16,8 +17,11 @@ public class PlayerDataListener implements Listener {
 	public void preLoginDataFetch(AsyncPlayerPreLoginEvent event) {
 		RabbitHandler rabbit = ArtemisPlugin.getInstance().getRabbitHandler();
 		String ticket = ArtemisPlugin.getInstance().getTransactionIdManager().pullNewTicket();
+		PlayerDataTransferSession session = new PlayerDataTransferSession(ArtemisPlugin.getInstance().getZeus(), ticket, event.getUniqueId());
+		ArtemisPlugin.getInstance().getTransactionIdManager().putSession(session);
 		rabbit.sendMessage(new RequestPlayerData(ticket, event.getUniqueId()));
 		event.setKickMessage(null);
+		ArtemisPlugin.getInstance().getPlayerDataCache().putWaiting(event.getUniqueId(), event);
 		synchronized (event) {
 			while (event.getKickMessage() == null) {
 				try {
@@ -35,6 +39,7 @@ public class PlayerDataListener implements Listener {
 			event.disallow(Result.KICK_OTHER, "Special internal error, tell an admin about this");
 			return;
 		}
+		System.out.println("all");
 		event.allow();
 	}
 

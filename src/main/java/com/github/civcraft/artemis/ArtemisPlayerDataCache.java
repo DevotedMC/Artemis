@@ -19,7 +19,7 @@ public class ArtemisPlayerDataCache {
 	}
 
 	public PlayerDataTransferSession consumeSession(UUID player) {
-		return sessions.get(player);
+		return sessions.remove(player);
 	}
 
 	public synchronized void putWaiting(UUID uuid, AsyncPlayerPreLoginEvent event) {
@@ -41,7 +41,9 @@ public class ArtemisPlayerDataCache {
 			event.setKickMessage("A"); //accept
 		}
 		// resume asyncloginevent
-		event.notifyAll();
+		synchronized (event) {
+			event.notifyAll();
+		}
 	}
 
 }

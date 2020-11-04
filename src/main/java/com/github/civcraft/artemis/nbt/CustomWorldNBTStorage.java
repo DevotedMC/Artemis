@@ -10,6 +10,7 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
+import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
 
 import com.github.civcraft.artemis.ArtemisPlugin;
 import com.github.civcraft.zeus.model.ZeusLocation;
@@ -19,10 +20,15 @@ import com.mojang.datafixers.DataFixer;
 
 import net.minecraft.server.v1_16_R1.Convertable;
 import net.minecraft.server.v1_16_R1.Convertable.ConversionSession;
+import net.minecraft.server.v1_16_R1.DataFixTypes;
+import net.minecraft.server.v1_16_R1.DedicatedPlayerList;
+import net.minecraft.server.v1_16_R1.DedicatedServer;
 import net.minecraft.server.v1_16_R1.EntityHuman;
+import net.minecraft.server.v1_16_R1.GameProfileSerializer;
 import net.minecraft.server.v1_16_R1.MinecraftServer;
 import net.minecraft.server.v1_16_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R1.NBTTagCompound;
+import net.minecraft.server.v1_16_R1.PlayerList;
 import net.minecraft.server.v1_16_R1.WorldNBTStorage;
 
 public class CustomWorldNBTStorage extends WorldNBTStorage {
@@ -32,6 +38,7 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 	}
 
 	public void save(EntityHuman entityhuman) {
+		System.out.println("Called save for " + entityhuman.getName());
 		ArtemisPlugin artemis = ArtemisPlugin.getInstance();
 		NBTTagCompound nbttagcompound = entityhuman.save(new NBTTagCompound());
 		String transactionId = ArtemisPlugin.getInstance().getTransactionIdManager().pullNewTicket();
@@ -56,10 +63,16 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 	}
 
 	public NBTTagCompound load(EntityHuman entityhuman) {
-		return loadCompound(entityhuman.getUniqueID());
+		System.out.println("Called load for " + entityhuman.getName());
+		NBTTagCompound comp = loadCompound(entityhuman.getUniqueID());
+		int i = comp.hasKeyOfType("DataVersion", 3) ? comp.getInt("DataVersion") : -1;
+		entityhuman.load(GameProfileSerializer.a((DataFixer) this.a, (DataFixTypes) DataFixTypes.PLAYER,
+				comp, (int) i));
+		return comp;
 	}
 
 	public NBTTagCompound getPlayerData(String s) {
+		System.out.println("Called get for " + s);
 		UUID uuid = UUID.fromString(s);
 		return loadCompound(uuid);
 	}
@@ -67,6 +80,10 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 	private NBTTagCompound loadCompound(UUID uuid) {
 		PlayerDataTransferSession session = ArtemisPlugin.getInstance().getPlayerDataCache().consumeSession(uuid);
 		if (session == null) {
+			return null;
+		}
+		if (session.getData().length == 0) {
+			//new player, data will be generated
 			return null;
 		}
 		ByteArrayInputStream input = new ByteArrayInputStream(session.getData());
@@ -81,13 +98,19 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 	public static void insertCustomNBTHandler() {
 		Server server = Bukkit.getServer();
 		try {
-			Field trueServerField = server.getClass().getField("console");
+			Field trueServerField = CraftServer.class.getDeclaredField("console");
 			trueServerField.setAccessible(true);
 			MinecraftServer trueServer = (MinecraftServer) trueServerField.get(server);
-			Field nbtField = trueServer.getClass().getField("worldNBTStorage");
+			Field nbtField = MinecraftServer.class.getDeclaredField("worldNBTStorage");
 			Convertable.ConversionSession session = trueServer.convertable;
-			CustomWorldNBTStorage customNBT = new CustomWorldNBTStorage(session, null);
+			DataFixer dataFixer = trueServer.dataConverterManager;
+			CustomWorldNBTStorage customNBT = new CustomWorldNBTStorage(session, dataFixer);
 			overwriteFinalField(nbtField, customNBT, trueServer);
+			Field playerListField = CraftServer.class.getDeclaredField("playerList");
+			playerListField.setAccessible(true);
+			DedicatedPlayerList playerList = (DedicatedPlayerList) playerListField.get(server);
+			Field nbtPlayerListField = PlayerList.class.getField("playerFileData");
+			overwriteFinalField(nbtPlayerListField, customNBT, playerList);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			ArtemisPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to set custom nbt handler", e);
 		}

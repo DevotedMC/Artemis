@@ -4,6 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import com.github.civcraft.zeus.model.ConnectedMapState;
 import com.github.civcraft.zeus.model.ZeusLocation;
+import com.github.civcraft.zeus.rabbit.ZeusRabbitGateway;
 import com.rabbitmq.client.ConnectionFactory;
 
 import vg.civcraft.mc.civmodcore.ACivMod;
@@ -13,10 +14,9 @@ public class ArtemisConfigManager extends CoreConfigManager {
 	
 	private ConfigurationSection config;
 	private ConnectionFactory connectionFactory;
-	private String incomingQueue;
-	private String outgoingQueue;
 	private String ownIdentifier;
 	private ConnectedMapState connectedMapState;
+	private boolean debugRabbit;
 
 	public ArtemisConfigManager(ACivMod plugin) {
 		super(plugin);
@@ -40,6 +40,7 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		if (port != -1) {
 			connFac.setPort(port);
 		}
+		debugRabbit = config.getBoolean("rabbitmq.debug", true);
 		return connFac;
 	}
 	
@@ -52,18 +53,18 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		String world = config.getString("world");
 		int lowerX = config.getInt("lower_x_bound");
 		int lowerZ = config.getInt("lower_z_bound");
+		boolean randomSpawnTarget = config.getBoolean("random_spawn", true);
 		ZeusLocation corner = new ZeusLocation(world, lowerX, 0, lowerZ);
-		connectedMapState = new ConnectedMapState(null, corner, xSize, zSize);
+		connectedMapState = new ConnectedMapState(null, corner, xSize, zSize, randomSpawnTarget);
 		return true;
 	}
 	
 	protected boolean parseInternal(ConfigurationSection config) {
 		this.config = config;
 		if (!parseMapPosition(config.getConfigurationSection("position"))) {
+			logger.severe("No position configured in config");
 			return false;
 		}
-		incomingQueue = config.getString("rabbitmq.incomingQueue");
-		outgoingQueue = config.getString("rabbitmq.outgoingQueue");
 		ownIdentifier = config.getString("own_identifier");
 		connectionFactory = parseRabbitConfig();
 		return true;
@@ -81,12 +82,16 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		return ownIdentifier;
 	}
 	
+	public boolean debugRabbit() {
+		return debugRabbit;
+	}
+	
 	public String getOutgoingRabbitQueue() {
-		return outgoingQueue;
+		return ZeusRabbitGateway.getChannelToZeus(ownIdentifier);
 	}
 	
 	public String getIncomingRabbitQueue() {
-		return incomingQueue;
+		return ZeusRabbitGateway.getChannelFromZeus(ownIdentifier);
 	}
 	
 	public ConnectionFactory getConnectionFactory() {

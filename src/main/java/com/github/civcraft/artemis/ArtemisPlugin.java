@@ -2,6 +2,8 @@ package com.github.civcraft.artemis;
 
 import org.bukkit.Bukkit;
 
+import com.github.civcraft.artemis.listeners.PlayerDataListener;
+import com.github.civcraft.artemis.listeners.ShardBorderListener;
 import com.github.civcraft.artemis.nbt.CustomWorldNBTStorage;
 import com.github.civcraft.artemis.rabbit.RabbitHandler;
 import com.github.civcraft.artemis.rabbit.outgoing.ArtemisStartup;
@@ -26,14 +28,9 @@ public final class ArtemisPlugin extends ACivMod {
 	private PlayerManager<PlayerData> globalPlayerTracker;
 	private TransitManager transitManager;
 	private ArtemisPlayerDataCache playerDataCache;
+	private ShardBorderManager borderManager;
 	private ZeusServer zeus;
 	
-	@Override
-	public void onLoad() {
-		super.onLoad();
-		CustomWorldNBTStorage.insertCustomNBTHandler();
-	}
-
 	@Override
 	public void onEnable() {
 		instance = this;
@@ -44,6 +41,7 @@ public final class ArtemisPlugin extends ACivMod {
 			return;
 		}
 		this.zeus = new ZeusServer();
+		this.borderManager = new ShardBorderManager(configManager.getConnectedMapState());
 		this.playerDataCache = new ArtemisPlayerDataCache();
 		this.transitManager = new TransitManager();
 		this.globalPlayerTracker = new PlayerManager<>();
@@ -55,6 +53,9 @@ public final class ArtemisPlugin extends ACivMod {
 			Bukkit.shutdown();
 			return;
 		}
+		CustomWorldNBTStorage.insertCustomNBTHandler();
+		Bukkit.getPluginManager().registerEvents(new PlayerDataListener(), this);
+		Bukkit.getPluginManager().registerEvents(new ShardBorderListener(borderManager), this);
 		rabbitHandler.beginAsyncListen();
 		rabbitHandler.sendMessage(new ArtemisStartup(transactionIdManager.pullNewTicket()));
 	}
