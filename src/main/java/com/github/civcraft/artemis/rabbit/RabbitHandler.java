@@ -10,7 +10,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.github.civcraft.artemis.ArtemisPlugin;
 import com.github.civcraft.zeus.model.TransactionIdManager;
 import com.github.civcraft.zeus.rabbit.RabbitMessage;
-import com.github.civcraft.zeus.rabbit.ZeusRabbitGateway;
 import com.github.civcraft.zeus.rabbit.incoming.InteractiveRabbitCommand;
 import com.github.civcraft.zeus.servers.ZeusServer;
 import com.rabbitmq.client.Channel;

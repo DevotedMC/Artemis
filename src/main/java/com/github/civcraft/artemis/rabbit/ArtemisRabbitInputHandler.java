@@ -8,6 +8,7 @@ import com.github.civcraft.artemis.rabbit.incoming.PlayerGlobalLogout;
 import com.github.civcraft.artemis.rabbit.incoming.PlayerTransferAcceptHandler;
 import com.github.civcraft.artemis.rabbit.incoming.PlayerTransferRejectHandler;
 import com.github.civcraft.artemis.rabbit.incoming.ReceivePlayerData;
+import com.github.civcraft.artemis.rabbit.incoming.ReceivePlayerLocation;
 import com.github.civcraft.artemis.rabbit.incoming.ZeusResetConnection;
 import com.github.civcraft.zeus.model.TransactionIdManager;
 import com.github.civcraft.zeus.rabbit.abstr.AbstractRabbitInputHandler;
@@ -30,6 +31,7 @@ public class ArtemisRabbitInputHandler extends AbstractRabbitInputHandler {
 		registerCommand(new PlayerTransferAcceptHandler());
 		registerCommand(new ReceivePlayerData());
 		registerCommand(new ZeusResetConnection());
+		registerCommand(new ReceivePlayerLocation());
 	}
 
 	@Override

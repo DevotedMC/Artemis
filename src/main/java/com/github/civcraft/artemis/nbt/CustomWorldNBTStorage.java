@@ -22,7 +22,6 @@ import net.minecraft.server.v1_16_R1.Convertable;
 import net.minecraft.server.v1_16_R1.Convertable.ConversionSession;
 import net.minecraft.server.v1_16_R1.DataFixTypes;
 import net.minecraft.server.v1_16_R1.DedicatedPlayerList;
-import net.minecraft.server.v1_16_R1.DedicatedServer;
 import net.minecraft.server.v1_16_R1.EntityHuman;
 import net.minecraft.server.v1_16_R1.GameProfileSerializer;
 import net.minecraft.server.v1_16_R1.MinecraftServer;

@@ -1,5 +1,8 @@
 package com.github.civcraft.artemis;
 
+import java.util.List;
+
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 
 import com.github.civcraft.zeus.model.ConnectedMapState;
@@ -17,6 +20,9 @@ public class ArtemisConfigManager extends CoreConfigManager {
 	private String ownIdentifier;
 	private ConnectedMapState connectedMapState;
 	private boolean debugRabbit;
+	private List<Material> randomSpawnBlacklist;
+	private int minRandomSpawnY;
+	private int maxRandomSpawnY;
 
 	public ArtemisConfigManager(ACivMod plugin) {
 		super(plugin);
@@ -56,7 +62,30 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		boolean randomSpawnTarget = config.getBoolean("random_spawn", true);
 		ZeusLocation corner = new ZeusLocation(world, lowerX, 0, lowerZ);
 		connectedMapState = new ConnectedMapState(null, corner, xSize, zSize, randomSpawnTarget);
+		ConfigurationSection randomSpawnSection = config.getConfigurationSection("random_spawn");
+		if (randomSpawnSection != null) {
+			randomSpawnBlacklist = parseMaterialList(randomSpawnSection, "block_blacklist");
+			minRandomSpawnY = randomSpawnSection.getInt("min_y", 1);
+			maxRandomSpawnY = randomSpawnSection.getInt("max_y", 255);
+			if (maxRandomSpawnY < minRandomSpawnY) {
+				logger.severe("Maximum random spawn y is below minimum");
+				return false;
+			}
+		}
+		
 		return true;
+	}
+	
+	public List<Material> getBlacklistedRandomspawnMaterials() {
+		return randomSpawnBlacklist;
+	}
+	
+	public int getMaxRandomSpawnY() {
+		return maxRandomSpawnY;
+	}
+	
+	public int getMinRandomSpawnY() {
+		return minRandomSpawnY;
 	}
 	
 	protected boolean parseInternal(ConfigurationSection config) {
