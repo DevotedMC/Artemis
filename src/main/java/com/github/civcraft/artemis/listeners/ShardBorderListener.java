@@ -39,7 +39,9 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import com.github.civcraft.artemis.ArtemisPlugin;
 import com.github.civcraft.artemis.ShardBorderManager;
 import com.github.civcraft.artemis.TransitManager;
+import com.github.civcraft.artemis.nbt.CustomWorldNBTStorage;
 import com.github.civcraft.artemis.rabbit.outgoing.PlayerInitTransfer;
+import com.github.civcraft.artemis.rabbit.session.OutgoingPlayerTransferSession;
 import com.github.civcraft.zeus.model.ZeusLocation;
 
 public class ShardBorderListener implements Listener {
@@ -73,15 +75,17 @@ public class ShardBorderListener implements Listener {
 			transit.putInTransit(uuid);
 		}
 		String world = ArtemisPlugin.getInstance().getConfigManager().getWorldName();
-		double x = event.getPlayer().getLocation().getX();
-		double y = event.getPlayer().getLocation().getY();
-		double z = event.getPlayer().getLocation().getZ();
-		event.getPlayer().kickPlayer("TRANSIT");
-		Bukkit.getScheduler().runTask(ArtemisPlugin.getInstance(), () -> {
-			String transId = ArtemisPlugin.getInstance().getTransactionIdManager().pullNewTicket();
-			ArtemisPlugin.getInstance().getRabbitHandler()
-					.sendMessage(new PlayerInitTransfer(transId, uuid, new ZeusLocation(world, x, y, z)));
-		});
+		double x = to.getX();
+		double y = to.getY();
+		double z = to.getZ();
+		String transId = ArtemisPlugin.getInstance().getTransactionIdManager().pullNewTicket();
+		OutgoingPlayerTransferSession session = new OutgoingPlayerTransferSession(ArtemisPlugin.getInstance().getZeus(),
+				transId, uuid);
+		ArtemisPlugin.getInstance().getTransactionIdManager().putSession(session);
+		CustomWorldNBTStorage.removeActivePlayer(uuid);
+		ArtemisPlugin.getInstance().getRabbitHandler()
+				.sendMessage(new PlayerInitTransfer(transId, uuid, new ZeusLocation(world, x, y, z)));
+
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

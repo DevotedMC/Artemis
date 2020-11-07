@@ -23,7 +23,6 @@ public class ShardTeleportCommand extends StandaloneCommand {
 
 	@Override
 	public boolean execute(CommandSender sender, String[] args) {
-		TransactionIdManager transIdMan = ArtemisPlugin.getInstance().getTransactionIdManager();
 		if (args.length <= 4 && args.length != 2) {
 			if (!(sender instanceof Player)) {
 				sender.sendMessage("Fuck off");

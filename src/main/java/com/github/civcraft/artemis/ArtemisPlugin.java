@@ -45,7 +45,7 @@ public final class ArtemisPlugin extends ACivMod {
 		this.playerDataCache = new ArtemisPlayerDataCache();
 		this.transitManager = new TransitManager();
 		this.globalPlayerTracker = new PlayerManager<>();
-		this.transactionIdManager = new TransactionIdManager(configManager.getOwnIdentifier());
+		this.transactionIdManager = new TransactionIdManager(configManager.getOwnIdentifier(), getLogger()::info);
 		this.rabbitHandler = new RabbitHandler(configManager.getConnectionFactory(),
 				configManager.getIncomingRabbitQueue(), configManager.getOutgoingRabbitQueue(), transactionIdManager,
 				getLogger(), zeus);
@@ -58,6 +58,7 @@ public final class ArtemisPlugin extends ACivMod {
 		Bukkit.getPluginManager().registerEvents(new ShardBorderListener(borderManager), this);
 		rabbitHandler.beginAsyncListen();
 		rabbitHandler.sendMessage(new ArtemisStartup(transactionIdManager.pullNewTicket()));
+		Bukkit.getScheduler().runTaskTimerAsynchronously(this, transactionIdManager::updateTimeouts, 1, 1);
 	}
 
 	@Override

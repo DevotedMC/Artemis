@@ -3,6 +3,7 @@ package com.github.civcraft.artemis.rabbit;
 import java.util.logging.Logger;
 
 import com.github.civcraft.artemis.rabbit.incoming.HandleRejectPlayerDataRequest;
+import com.github.civcraft.artemis.rabbit.incoming.HandleRequestPlayerJoin;
 import com.github.civcraft.artemis.rabbit.incoming.PlayerGlobalLogin;
 import com.github.civcraft.artemis.rabbit.incoming.PlayerGlobalLogout;
 import com.github.civcraft.artemis.rabbit.incoming.PlayerTransferAcceptHandler;
@@ -25,13 +26,14 @@ public class ArtemisRabbitInputHandler extends AbstractRabbitInputHandler {
 	@Override
 	protected void registerCommands() {
 		registerCommand(new HandleRejectPlayerDataRequest());
+		registerCommand(new HandleRequestPlayerJoin());
 		registerCommand(new PlayerGlobalLogin());
 		registerCommand(new PlayerGlobalLogout());
 		registerCommand(new PlayerTransferRejectHandler());
 		registerCommand(new PlayerTransferAcceptHandler());
 		registerCommand(new ReceivePlayerData());
-		registerCommand(new ZeusResetConnection());
 		registerCommand(new ReceivePlayerLocation());
+		registerCommand(new ZeusResetConnection());
 	}
 
 	@Override
