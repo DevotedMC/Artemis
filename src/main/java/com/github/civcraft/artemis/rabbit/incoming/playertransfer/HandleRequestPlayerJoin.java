@@ -1,4 +1,4 @@
-package com.github.civcraft.artemis.rabbit.incoming;
+package com.github.civcraft.artemis.rabbit.incoming.playertransfer;
 
 import java.util.UUID;
 

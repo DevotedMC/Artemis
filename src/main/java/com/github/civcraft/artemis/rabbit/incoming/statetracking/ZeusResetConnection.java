@@ -1,4 +1,4 @@
-package com.github.civcraft.artemis.rabbit.incoming;
+package com.github.civcraft.artemis.rabbit.incoming.statetracking;
 
 import org.json.JSONObject;
 

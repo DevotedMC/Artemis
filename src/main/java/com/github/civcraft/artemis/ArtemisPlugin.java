@@ -1,6 +1,7 @@
 package com.github.civcraft.artemis;
 
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
 
 import com.github.civcraft.artemis.listeners.PlayerDataListener;
 import com.github.civcraft.artemis.listeners.ShardBorderListener;

@@ -2,16 +2,17 @@ package com.github.civcraft.artemis.rabbit;
 
 import java.util.logging.Logger;
 
-import com.github.civcraft.artemis.rabbit.incoming.HandleRejectPlayerDataRequest;
-import com.github.civcraft.artemis.rabbit.incoming.HandleRequestPlayerJoin;
 import com.github.civcraft.artemis.rabbit.incoming.PlayerGlobalLogin;
 import com.github.civcraft.artemis.rabbit.incoming.PlayerGlobalLogout;
-import com.github.civcraft.artemis.rabbit.incoming.PlayerTransferAcceptHandler;
-import com.github.civcraft.artemis.rabbit.incoming.PlayerTransferRejectHandler;
-import com.github.civcraft.artemis.rabbit.incoming.ReceivePlayerData;
 import com.github.civcraft.artemis.rabbit.incoming.ReceivePlayerLocation;
-import com.github.civcraft.artemis.rabbit.incoming.ZeusResetConnection;
+import com.github.civcraft.artemis.rabbit.incoming.playertransfer.HandleRejectPlayerDataRequest;
+import com.github.civcraft.artemis.rabbit.incoming.playertransfer.HandleRequestPlayerJoin;
+import com.github.civcraft.artemis.rabbit.incoming.playertransfer.PlayerTransferAcceptHandler;
+import com.github.civcraft.artemis.rabbit.incoming.playertransfer.PlayerTransferRejectHandler;
+import com.github.civcraft.artemis.rabbit.incoming.playertransfer.ReceivePlayerData;
+import com.github.civcraft.artemis.rabbit.incoming.statetracking.ZeusResetConnection;
 import com.github.civcraft.zeus.model.TransactionIdManager;
+import com.github.civcraft.zeus.rabbit.StandardRequestHandler;
 import com.github.civcraft.zeus.rabbit.abstr.AbstractRabbitInputHandler;
 
 public class ArtemisRabbitInputHandler extends AbstractRabbitInputHandler {
@@ -34,6 +35,7 @@ public class ArtemisRabbitInputHandler extends AbstractRabbitInputHandler {
 		registerCommand(new ReceivePlayerData());
 		registerCommand(new ReceivePlayerLocation());
 		registerCommand(new ZeusResetConnection());
+		registerCommand(new StandardRequestHandler());
 	}
 
 	@Override
