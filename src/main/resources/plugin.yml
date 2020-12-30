@@ -13,3 +13,18 @@ depend: [CivModCore]
 softdepend: []
 
 authors: [Maxopoly]
+
+commands:
+  stp:
+    aliases:
+    - shardteleport
+    usage: /stp
+    description: Teleports you somewhere
+    min-args: 1
+    max-args: 5
+    player-only: false
+    permission: artemis.tp
+permissions:
+    artemis.tp:
+      description: Gives access to the teleport command
+      default: op
