@@ -33,11 +33,13 @@ public class ArtemisPlayerManager extends PlayerManager<PlayerData> {
 		ArtemisPlugin.getInstance().getRabbitHandler()
 				.sendMessage(new RequestPlayerUUID(ArtemisPlugin.getInstance().getTransactionIdManager(),
 						ArtemisPlugin.getInstance().getZeus(), name, fetched::put));
-		while (!fetched.isDone()) {
-			try {
-				fetched.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		synchronized (fetched) {
+			while (!fetched.isDone()) {
+				try {
+					fetched.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		UUID uuid;
@@ -74,11 +76,13 @@ public class ArtemisPlayerManager extends PlayerManager<PlayerData> {
 		ArtemisPlugin.getInstance().getRabbitHandler()
 				.sendMessage(new RequestPlayerName(ArtemisPlugin.getInstance().getTransactionIdManager(),
 						ArtemisPlugin.getInstance().getZeus(), playerUUID, fetched::put));
-		while (!fetched.isDone()) {
-			try {
-				fetched.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		synchronized (fetched) {
+			while (!fetched.isDone()) {
+				try {
+					fetched.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		String name;

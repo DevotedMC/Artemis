@@ -30,7 +30,6 @@ public class ReceivePlayerData extends InteractiveRabbitCommand<PlayerDataTransf
 		}
 		connState.setData(playerData);
 		connState.setLocation(location);
-		System.out.println("Post initial " + location.toString());
 		ArtemisPlugin.getInstance().getPlayerDataCache().completeSession(connState);
 		sendReply(sendingServer, new PlayerDataConfirm(connState.getTransactionID()));
 		return false;

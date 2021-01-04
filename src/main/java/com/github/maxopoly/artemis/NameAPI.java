@@ -81,7 +81,6 @@ public final class NameAPI {
 	 */
 	public static void consumeUUIDAsync(String name, Consumer<UUID> handler) {
 		Bukkit.getScheduler().runTaskAsynchronously(ArtemisPlugin.getInstance(), () -> handler.accept(getUUID(name)));
-
 	}
 
 	/**
@@ -92,7 +91,6 @@ public final class NameAPI {
 	 */
 	public static void consumeNameAsync(UUID uuid, Consumer<String> handler) {
 		Bukkit.getScheduler().runTaskAsynchronously(ArtemisPlugin.getInstance(), () -> handler.accept(getName(uuid)));
-
 	}
 
 }

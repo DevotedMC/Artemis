@@ -12,6 +12,7 @@ import com.github.maxopoly.artemis.ArtemisPlugin;
 import com.github.maxopoly.artemis.nbt.CustomWorldNBTStorage;
 import com.github.maxopoly.artemis.rabbit.RabbitHandler;
 import com.github.maxopoly.artemis.rabbit.outgoing.RequestPlayerData;
+import com.github.maxopoly.artemis.rabbit.session.ArtemisPlayerDataTransferSession;
 import com.github.maxopoly.zeus.rabbit.sessions.PlayerDataTransferSession;
 
 public class PlayerDataListener implements Listener {
@@ -20,7 +21,7 @@ public class PlayerDataListener implements Listener {
 	public void preLoginDataFetch(AsyncPlayerPreLoginEvent event) {
 		RabbitHandler rabbit = ArtemisPlugin.getInstance().getRabbitHandler();
 		String ticket = ArtemisPlugin.getInstance().getTransactionIdManager().pullNewTicket();
-		PlayerDataTransferSession session = new PlayerDataTransferSession(ArtemisPlugin.getInstance().getZeus(), ticket,
+		ArtemisPlayerDataTransferSession session = new ArtemisPlayerDataTransferSession(ArtemisPlugin.getInstance().getZeus(), ticket,
 				event.getUniqueId());
 		ArtemisPlugin.getInstance().getTransactionIdManager().putSession(session);
 		rabbit.sendMessage(new RequestPlayerData(ticket, event.getUniqueId()));
