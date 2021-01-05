@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import com.github.maxopoly.artemis.listeners.PlayerDataListener;
 import com.github.maxopoly.artemis.listeners.ShardBorderListener;
 import com.github.maxopoly.artemis.nbt.CustomWorldNBTStorage;
+import com.github.maxopoly.artemis.rabbit.ArtemisRabbitInputHandler;
 import com.github.maxopoly.artemis.rabbit.RabbitHandler;
 import com.github.maxopoly.artemis.rabbit.outgoing.ArtemisStartup;
 import com.github.maxopoly.zeus.model.TransactionIdManager;
@@ -22,6 +23,7 @@ public final class ArtemisPlugin extends ACivMod {
 	}
 
 	private RabbitHandler rabbitHandler;
+	private ArtemisRabbitInputHandler rabbitInputHandler;
 	private ArtemisConfigManager configManager;
 	private TransactionIdManager transactionIdManager;
 	private ArtemisPlayerManager globalPlayerTracker;
@@ -47,9 +49,10 @@ public final class ArtemisPlugin extends ACivMod {
 
 		this.transitManager = new TransitManager(transactionIdManager);
 		this.globalPlayerTracker = new ArtemisPlayerManager();
+		this.rabbitInputHandler = new ArtemisRabbitInputHandler(getLogger(), transactionIdManager);
 		this.rabbitHandler = new RabbitHandler(configManager.getConnectionFactory(),
 				configManager.getIncomingRabbitQueue(), configManager.getOutgoingRabbitQueue(), transactionIdManager,
-				getLogger(), zeus);
+				getLogger(), zeus, rabbitInputHandler);
 		if (!rabbitHandler.setup()) {
 			Bukkit.shutdown();
 			return;
@@ -83,6 +86,10 @@ public final class ArtemisPlugin extends ACivMod {
 	
 	public ArtemisPlayerManager getPlayerDataManager() {
 		return globalPlayerTracker;
+	}
+	
+	public ArtemisRabbitInputHandler getRabbitInputHandler() {
+		return rabbitInputHandler;
 	}
 	
 	public ArtemisConfigManager getConfigManager() {
