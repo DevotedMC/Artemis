@@ -1,6 +1,8 @@
 package com.github.maxopoly.artemis;
 
+import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
@@ -91,6 +93,23 @@ public final class NameAPI {
 	 */
 	public static void consumeNameAsync(UUID uuid, Consumer<String> handler) {
 		Bukkit.getScheduler().runTaskAsynchronously(ArtemisPlugin.getInstance(), () -> handler.accept(getName(uuid)));
+	}
+
+	public static void batchPreLoadNames(Collection<UUID> uuids, Runnable toRun) {
+		Bukkit.getScheduler().runTaskAsynchronously(ArtemisPlugin.getInstance(), () -> {
+			CountDownLatch latch = new CountDownLatch(uuids.size());
+			for (UUID uuid : uuids) {
+				consumeNameAsync(uuid, s -> latch.countDown());
+			}
+			synchronized (latch) {
+				try {
+					latch.await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			toRun.run();
+		});
 	}
 
 }

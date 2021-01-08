@@ -6,6 +6,7 @@ import com.github.maxopoly.artemis.rabbit.incoming.PlayerGlobalLogin;
 import com.github.maxopoly.artemis.rabbit.incoming.PlayerGlobalLogout;
 import com.github.maxopoly.artemis.rabbit.incoming.ReceivePlayerLocation;
 import com.github.maxopoly.artemis.rabbit.incoming.playertransfer.HandleRejectPlayerDataRequest;
+import com.github.maxopoly.artemis.rabbit.incoming.playertransfer.HandleReplyReceivePlayerData;
 import com.github.maxopoly.artemis.rabbit.incoming.playertransfer.HandleRequestPlayerJoin;
 import com.github.maxopoly.artemis.rabbit.incoming.playertransfer.PlayerTransferAcceptHandler;
 import com.github.maxopoly.artemis.rabbit.incoming.playertransfer.PlayerTransferRejectHandler;
@@ -36,6 +37,7 @@ public class ArtemisRabbitInputHandler extends AbstractRabbitInputHandler {
 		registerCommand(new ReceivePlayerData());
 		registerCommand(new ReceivePlayerLocation());
 		registerCommand(new ZeusResetConnection());
+		registerCommand(new HandleReplyReceivePlayerData());
 		deferCommandToStandardRequest(RequestPlayerName.REPLY_ID);
 		deferCommandToStandardRequest(RequestPlayerUUID.REPLY_ID);
 	}
