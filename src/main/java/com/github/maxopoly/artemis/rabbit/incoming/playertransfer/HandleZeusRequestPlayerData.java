@@ -14,8 +14,8 @@ import com.github.maxopoly.zeus.rabbit.incoming.GenericInteractiveRabbitCommand;
 import com.github.maxopoly.zeus.rabbit.outgoing.artemis.ZeusRequestPlayerData;
 import com.github.maxopoly.zeus.servers.ConnectedServer;
 
-import net.minecraft.server.v1_16_R1.NBTCompressedStreamTools;
-import net.minecraft.server.v1_16_R1.NBTTagCompound;
+import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
+import net.minecraft.server.v1_16_R3.NBTTagCompound;
 
 public class HandleZeusRequestPlayerData extends GenericInteractiveRabbitCommand {
 
