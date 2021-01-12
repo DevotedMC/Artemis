@@ -37,6 +37,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 
 import com.github.maxopoly.artemis.ArtemisPlugin;
@@ -308,6 +309,14 @@ public class ShardBorderListener implements Listener {
 				event.setCancelled(true);
 				return;
 			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void enderPearl(PlayerTeleportEvent event) {
+		Block block = event.getTo().getBlock();
+		if (isOutside(block.getLocation())){
+			event.setCancelled(true);
 		}
 	}
 
