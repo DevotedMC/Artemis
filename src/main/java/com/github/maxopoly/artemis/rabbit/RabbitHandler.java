@@ -29,12 +29,12 @@ public class RabbitHandler {
 	private ArtemisRabbitInputHandler inputProcessor;
 	private ZeusServer zeus;
 
-	public RabbitHandler(ConnectionFactory connFac, String incomingQueue, String outgoingQueue, TransactionIdManager transactionIdManager, Logger logger, ZeusServer zeus) {
+	public RabbitHandler(ConnectionFactory connFac, String incomingQueue, String outgoingQueue, TransactionIdManager transactionIdManager, Logger logger, ZeusServer zeus, ArtemisRabbitInputHandler rabbitProcessor) {
 		this.connectionFactory = connFac;
 		this.incomingQueue = incomingQueue;
 		this.outgoingQueue = outgoingQueue;
 		this.logger = logger;
-		inputProcessor = new ArtemisRabbitInputHandler(logger, transactionIdManager);
+		inputProcessor = rabbitProcessor;
 		this.zeus = zeus;
 	}
 

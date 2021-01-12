@@ -1,11 +1,15 @@
 package com.github.maxopoly.artemis;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.github.maxopoly.artemis.listeners.PlayerDataListener;
 import com.github.maxopoly.artemis.listeners.ShardBorderListener;
 import com.github.maxopoly.artemis.nbt.CustomWorldNBTStorage;
+import com.github.maxopoly.artemis.rabbit.ArtemisRabbitInputHandler;
 import com.github.maxopoly.artemis.rabbit.RabbitHandler;
 import com.github.maxopoly.artemis.rabbit.outgoing.ArtemisStartup;
 import com.github.maxopoly.zeus.model.TransactionIdManager;
@@ -22,6 +26,7 @@ public final class ArtemisPlugin extends ACivMod {
 	}
 
 	private RabbitHandler rabbitHandler;
+	private ArtemisRabbitInputHandler rabbitInputHandler;
 	private ArtemisConfigManager configManager;
 	private TransactionIdManager transactionIdManager;
 	private ArtemisPlayerManager globalPlayerTracker;
@@ -30,7 +35,10 @@ public final class ArtemisPlugin extends ACivMod {
 	private ShardBorderManager borderManager;
 	private ZeusServer zeus;
 	private CustomWorldNBTStorage customNBTHandler;
-	
+	private ScheduledExecutorService transactionIdCleanup; // can't be a bukkit thread, because those are disable before
+															// onDisable and we
+	// still need it there
+
 	@Override
 	public void onEnable() {
 		instance = this;
@@ -47,9 +55,10 @@ public final class ArtemisPlugin extends ACivMod {
 
 		this.transitManager = new TransitManager(transactionIdManager);
 		this.globalPlayerTracker = new ArtemisPlayerManager();
+		this.rabbitInputHandler = new ArtemisRabbitInputHandler(getLogger(), transactionIdManager);
 		this.rabbitHandler = new RabbitHandler(configManager.getConnectionFactory(),
 				configManager.getIncomingRabbitQueue(), configManager.getOutgoingRabbitQueue(), transactionIdManager,
-				getLogger(), zeus);
+				getLogger(), zeus, rabbitInputHandler);
 		if (!rabbitHandler.setup()) {
 			Bukkit.shutdown();
 			return;
@@ -59,16 +68,17 @@ public final class ArtemisPlugin extends ACivMod {
 		Bukkit.getPluginManager().registerEvents(new ShardBorderListener(borderManager, transitManager), this);
 		rabbitHandler.beginAsyncListen();
 		rabbitHandler.sendMessage(new ArtemisStartup(transactionIdManager.pullNewTicket()));
-		Bukkit.getScheduler().runTaskTimerAsynchronously(this, transactionIdManager::updateTimeouts, 1, 1);
+		transactionIdCleanup = Executors.newSingleThreadScheduledExecutor();
+		transactionIdCleanup.scheduleAtFixedRate(transactionIdManager::updateTimeouts, 0, 50, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
 	public void onDisable() {
 		customNBTHandler.shutdown();
-		for(Player p : Bukkit.getOnlinePlayers()) {
+		for (Player p : Bukkit.getOnlinePlayers()) {
 			p.kickPlayer("Server is shutting down");
 		}
-		while(transactionIdManager.hasActiveSessions()) {
+		while (transactionIdManager.hasActiveSessions()) {
 			getLogger().info("Waiting for closure of open rabbit sessions");
 			transactionIdManager.printActiveSessions(getLogger()::info);
 			try {
@@ -77,22 +87,31 @@ public final class ArtemisPlugin extends ACivMod {
 				e.printStackTrace();
 			}
 		}
-		super.onDisable();
 		rabbitHandler.shutdown();
+		try {
+			transactionIdCleanup.awaitTermination(1, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		super.onDisable();
 	}
-	
+
 	public ArtemisPlayerManager getPlayerDataManager() {
 		return globalPlayerTracker;
 	}
-	
+
+	public ArtemisRabbitInputHandler getRabbitInputHandler() {
+		return rabbitInputHandler;
+	}
+
 	public ArtemisConfigManager getConfigManager() {
 		return configManager;
 	}
-	
+
 	public ArtemisPlayerDataCache getPlayerDataCache() {
 		return playerDataCache;
 	}
-	
+
 	public CustomWorldNBTStorage getCustomNBTStorage() {
 		return customNBTHandler;
 	}
@@ -100,15 +119,15 @@ public final class ArtemisPlugin extends ACivMod {
 	public ZeusServer getZeus() {
 		return zeus;
 	}
-	
+
 	public ShardBorderManager getBorderManager() {
 		return borderManager;
 	}
-	
+
 	public TransitManager getTransitManager() {
 		return transitManager;
 	}
-	
+
 	public RabbitHandler getRabbitHandler() {
 		return rabbitHandler;
 	}
