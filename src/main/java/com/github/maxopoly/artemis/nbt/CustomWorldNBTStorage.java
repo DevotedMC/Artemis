@@ -15,7 +15,8 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
-import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
+import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
 
 import com.github.maxopoly.artemis.ArtemisPlugin;
 import com.github.maxopoly.artemis.rabbit.session.ArtemisPlayerDataTransferSession;
@@ -26,19 +27,19 @@ import com.github.maxopoly.zeus.rabbit.outgoing.artemis.SendPlayerData;
 import com.github.maxopoly.zeus.rabbit.sessions.PlayerDataTransferSession;
 import com.mojang.datafixers.DataFixer;
 
-import net.minecraft.server.v1_16_R1.Convertable;
-import net.minecraft.server.v1_16_R1.Convertable.ConversionSession;
-import net.minecraft.server.v1_16_R1.DataFixTypes;
-import net.minecraft.server.v1_16_R1.DedicatedPlayerList;
-import net.minecraft.server.v1_16_R1.EntityHuman;
-import net.minecraft.server.v1_16_R1.GameProfileSerializer;
-import net.minecraft.server.v1_16_R1.MinecraftServer;
-import net.minecraft.server.v1_16_R1.NBTCompressedStreamTools;
-import net.minecraft.server.v1_16_R1.NBTTagCompound;
-import net.minecraft.server.v1_16_R1.PlayerList;
-import net.minecraft.server.v1_16_R1.SavedFile;
-import net.minecraft.server.v1_16_R1.SystemUtils;
-import net.minecraft.server.v1_16_R1.WorldNBTStorage;
+import net.minecraft.server.v1_16_R3.Convertable;
+import net.minecraft.server.v1_16_R3.Convertable.ConversionSession;
+import net.minecraft.server.v1_16_R3.DataFixTypes;
+import net.minecraft.server.v1_16_R3.DedicatedPlayerList;
+import net.minecraft.server.v1_16_R3.EntityHuman;
+import net.minecraft.server.v1_16_R3.GameProfileSerializer;
+import net.minecraft.server.v1_16_R3.MinecraftServer;
+import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
+import net.minecraft.server.v1_16_R3.NBTTagCompound;
+import net.minecraft.server.v1_16_R3.PlayerList;
+import net.minecraft.server.v1_16_R3.SavedFile;
+import net.minecraft.server.v1_16_R3.SystemUtils;
+import net.minecraft.server.v1_16_R3.WorldNBTStorage;
 import vg.civcraft.mc.civmodcore.serialization.NBTCompound;
 
 public class CustomWorldNBTStorage extends WorldNBTStorage {
@@ -171,11 +172,19 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 			if (loc != null) {
 				comp.setDoubleArray("Pos",new double [] {loc.getX(), loc.getY(), loc.getZ()});
 			}
+			insertWorldUUID(comp);
 			return comp.getRAW();
 		} catch (IOException e) {
 			ArtemisPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to load player data", e);
 			return null;
 		}
+	}
+	
+	private static void insertWorldUUID(NBTCompound compound) {
+		String worldName = ArtemisPlugin.getInstance().getConfigManager().getConnectedMapState().getWorld();
+		UUID worldUUID = Bukkit.getWorld(worldName).getUID();
+		compound.setLong("WorldUUIDLeast", worldUUID.getLeastSignificantBits());
+		compound.setLong("WorldUUIDMost", worldUUID.getMostSignificantBits());
 	}
 
 	public static CustomWorldNBTStorage insertCustomNBTHandler() {

@@ -2,6 +2,7 @@ package com.github.maxopoly.artemis;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -54,11 +55,15 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		if (config == null) {
 			return false;
 		}
-		int xSize = config.getInt("x_size");
-		int zSize = config.getInt("z_size");
-		String world = config.getString("world");
-		int lowerX = config.getInt("lower_x_bound");
-		int lowerZ = config.getInt("lower_z_bound");
+		int xSize = Integer.parseInt(config.getString("x_size")); //intentionally to allow quoted values, because getInt() is broken
+		int zSize = Integer.parseInt(config.getString("z_size"));
+		String world = config.getString("world", "world");
+		if (Bukkit.getWorld(world) == null) {
+			logger.severe("No world with the name "+  world + " exists");
+			return false;
+		}
+		int lowerX = Integer.parseInt(config.getString("lower_x_bound"));
+		int lowerZ = Integer.parseInt(config.getString("lower_z_bound"));
 		boolean randomSpawnTarget = config.getBoolean("random_spawn", true);
 		ZeusLocation corner = new ZeusLocation(world, lowerX, 0, lowerZ);
 		connectedMapState = new ConnectedMapState(null, corner, xSize, zSize, randomSpawnTarget);
