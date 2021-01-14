@@ -1,6 +1,7 @@
 package com.github.maxopoly.artemis;
 
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -23,13 +24,15 @@ public class RandomSpawnHandler {
 	private Set<Material> blacklistedGround;
 	private int minY;
 	private int maxY;
-	private int maxTries = 20;
+	private int maxTries = 30;
+	private int airNeeded;
 
 	public RandomSpawnHandler(ArtemisConfigManager configManager) {
 		this.mapState = configManager.getConnectedMapState();
 		this.minY = configManager.getMinRandomSpawnY();
 		this.maxY = configManager.getMaxRandomSpawnY();
-		this.blacklistedGround = EnumSet.copyOf(configManager.getBlacklistedRandomspawnMaterials());
+		this.airNeeded = configManager.getRandomSpawnAirNeeded();
+		this.blacklistedGround = new HashSet(configManager.getBlacklistedRandomspawnMaterials());
 		this.rng = new Random();
 	}
 
@@ -37,11 +40,6 @@ public class RandomSpawnHandler {
 		int tries = 0;
 		while (tries++ < maxTries) {
 			Location pos = getInitialXZ();
-			int skyPoint = pos.getChunk().getChunkSnapshot().getHighestBlockYAt(pos.getBlockX() & 0xF,
-					pos.getBlockZ() & 0xF);
-			if (skyPoint > maxY) {
-				continue;
-			}
 			int airCount = 0;
 			for(int i = maxY; i >= minY; i--) {
 				Block block = pos.getWorld().getBlockAt(pos.getBlockX(), i, pos.getBlockZ());
@@ -53,7 +51,7 @@ public class RandomSpawnHandler {
 					airCount = 0;
 					continue;
 				}
-				if (airCount >= 2) {
+				if (airCount >= airNeeded) {
 					return block.getLocation().clone().add(0.5, 0.01, 0.5);
 				}
 				airCount = 0;

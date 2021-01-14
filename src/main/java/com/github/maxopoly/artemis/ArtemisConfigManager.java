@@ -1,5 +1,6 @@
 package com.github.maxopoly.artemis;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -15,7 +16,7 @@ import vg.civcraft.mc.civmodcore.ACivMod;
 import vg.civcraft.mc.civmodcore.CoreConfigManager;
 
 public class ArtemisConfigManager extends CoreConfigManager {
-	
+
 	private ConfigurationSection config;
 	private ConnectionFactory connectionFactory;
 	private String ownIdentifier;
@@ -24,11 +25,12 @@ public class ArtemisConfigManager extends CoreConfigManager {
 	private List<Material> randomSpawnBlacklist;
 	private int minRandomSpawnY;
 	private int maxRandomSpawnY;
+	private int randomSpawnAirNeeded;
 
 	public ArtemisConfigManager(ACivMod plugin) {
 		super(plugin);
 	}
-	
+
 	private ConnectionFactory parseRabbitConfig() {
 		ConnectionFactory connFac = new ConnectionFactory();
 		String user = config.getString("rabbitmq.user", null);
@@ -50,16 +52,17 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		debugRabbit = config.getBoolean("rabbitmq.debug", true);
 		return connFac;
 	}
-	
+
 	private boolean parseMapPosition(ConfigurationSection config) {
 		if (config == null) {
 			return false;
 		}
-		int xSize = Integer.parseInt(config.getString("x_size")); //intentionally to allow quoted values, because getInt() is broken
+		int xSize = Integer.parseInt(config.getString("x_size")); // intentionally to allow quoted values, because
+																	// getInt() is broken
 		int zSize = Integer.parseInt(config.getString("z_size"));
 		String world = config.getString("world", "world");
 		if (Bukkit.getWorld(world) == null) {
-			logger.severe("No world with the name "+  world + " exists");
+			logger.severe("No world with the name " + world + " exists");
 			return false;
 		}
 		int lowerX = Integer.parseInt(config.getString("lower_x_bound"));
@@ -67,32 +70,37 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		boolean randomSpawnTarget = config.getBoolean("random_spawn", true);
 		ZeusLocation corner = new ZeusLocation(world, lowerX, 0, lowerZ);
 		connectedMapState = new ConnectedMapState(null, corner, xSize, zSize, randomSpawnTarget);
-		ConfigurationSection randomSpawnSection = config.getConfigurationSection("random_spawn");
-		if (randomSpawnSection != null) {
-			randomSpawnBlacklist = parseMaterialList(randomSpawnSection, "block_blacklist");
-			minRandomSpawnY = randomSpawnSection.getInt("min_y", 1);
-			maxRandomSpawnY = randomSpawnSection.getInt("max_y", 255);
-			if (maxRandomSpawnY < minRandomSpawnY) {
-				logger.severe("Maximum random spawn y is below minimum");
-				return false;
-			}
+		randomSpawnBlacklist = parseMaterialList(config, "random_spawn.block_blacklist");
+		if (randomSpawnBlacklist == null) {
+			randomSpawnBlacklist = new ArrayList<>();
 		}
-		
+		minRandomSpawnY = config.getInt("random_spawn.min_y", 1);
+		maxRandomSpawnY = config.getInt("random_spawn.max_y", 255);
+		randomSpawnAirNeeded = config.getInt("random_spawn.air_needed", 6);
+		if (maxRandomSpawnY < minRandomSpawnY) {
+			logger.severe("Maximum random spawn y is below minimum");
+			return false;
+		}
+
 		return true;
 	}
-	
+
 	public List<Material> getBlacklistedRandomspawnMaterials() {
 		return randomSpawnBlacklist;
 	}
-	
+
 	public int getMaxRandomSpawnY() {
 		return maxRandomSpawnY;
 	}
 	
+	public int getRandomSpawnAirNeeded() {
+		return randomSpawnAirNeeded;
+	}
+
 	public int getMinRandomSpawnY() {
 		return minRandomSpawnY;
 	}
-	
+
 	protected boolean parseInternal(ConfigurationSection config) {
 		this.config = config;
 		if (!parseMapPosition(config.getConfigurationSection("position"))) {
@@ -103,31 +111,31 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		connectionFactory = parseRabbitConfig();
 		return true;
 	}
-	
+
 	public String getWorldName() {
 		return connectedMapState.getWorld();
 	}
-	
+
 	public ConnectedMapState getConnectedMapState() {
 		return connectedMapState;
 	}
-	
+
 	public String getOwnIdentifier() {
 		return ownIdentifier;
 	}
-	
+
 	public boolean debugRabbit() {
 		return debugRabbit;
 	}
-	
+
 	public String getOutgoingRabbitQueue() {
 		return ZeusRabbitGateway.getChannelToZeus(ownIdentifier);
 	}
-	
+
 	public String getIncomingRabbitQueue() {
 		return ZeusRabbitGateway.getChannelFromZeus(ownIdentifier);
 	}
-	
+
 	public ConnectionFactory getConnectionFactory() {
 		return connectionFactory;
 	}
