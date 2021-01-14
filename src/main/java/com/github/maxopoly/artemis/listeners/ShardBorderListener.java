@@ -315,8 +315,11 @@ public class ShardBorderListener implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void enderPearl(PlayerTeleportEvent event) {
 		Block block = event.getTo().getBlock();
-		if (isOutside(block.getLocation())){
-			event.setCancelled(true);
+		if (event.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL
+				|| event.getCause() == PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT) {
+			if (isOutside(block.getLocation())) {
+				event.setCancelled(true);
+			}
 		}
 	}
 
