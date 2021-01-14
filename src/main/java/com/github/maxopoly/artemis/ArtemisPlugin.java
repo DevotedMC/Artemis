@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.github.maxopoly.artemis.listeners.PlayerDataListener;
+import com.github.maxopoly.artemis.listeners.RespawnListener;
 import com.github.maxopoly.artemis.listeners.ShardBorderListener;
 import com.github.maxopoly.artemis.nbt.CustomWorldNBTStorage;
 import com.github.maxopoly.artemis.rabbit.ArtemisRabbitInputHandler;
@@ -35,6 +36,7 @@ public final class ArtemisPlugin extends ACivMod {
 	private ShardBorderManager borderManager;
 	private ZeusServer zeus;
 	private CustomWorldNBTStorage customNBTHandler;
+	private RandomSpawnHandler randomSpawnHandler;
 	private ScheduledExecutorService transactionIdCleanup; // can't be a bukkit thread, because those are disable before
 															// onDisable and we
 	// still need it there
@@ -55,6 +57,7 @@ public final class ArtemisPlugin extends ACivMod {
 
 		this.transitManager = new TransitManager(transactionIdManager);
 		this.globalPlayerTracker = new ArtemisPlayerManager();
+		this.randomSpawnHandler = new RandomSpawnHandler(this.configManager);
 		this.rabbitInputHandler = new ArtemisRabbitInputHandler(getLogger(), transactionIdManager);
 		this.rabbitHandler = new RabbitHandler(configManager.getConnectionFactory(),
 				configManager.getIncomingRabbitQueue(), configManager.getOutgoingRabbitQueue(), transactionIdManager,
@@ -65,6 +68,7 @@ public final class ArtemisPlugin extends ACivMod {
 		}
 		customNBTHandler = CustomWorldNBTStorage.insertCustomNBTHandler();
 		Bukkit.getPluginManager().registerEvents(new PlayerDataListener(), this);
+		Bukkit.getPluginManager().registerEvents(new RespawnListener(), this);
 		Bukkit.getPluginManager().registerEvents(new ShardBorderListener(borderManager, transitManager), this);
 		rabbitHandler.beginAsyncListen();
 		rabbitHandler.sendMessage(new ArtemisStartup(transactionIdManager.pullNewTicket()));
@@ -110,6 +114,10 @@ public final class ArtemisPlugin extends ACivMod {
 
 	public ArtemisPlayerDataCache getPlayerDataCache() {
 		return playerDataCache;
+	}
+	
+	public RandomSpawnHandler getRandomSpawnHandler() {
+		return randomSpawnHandler;
 	}
 
 	public CustomWorldNBTStorage getCustomNBTStorage() {

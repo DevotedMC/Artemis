@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
+import com.destroystokyo.paper.MaterialTags;
 import com.github.maxopoly.zeus.model.ConnectedMapState;
 
 import vg.civcraft.mc.civmodcore.api.MaterialAPI;
@@ -48,7 +49,7 @@ public class RandomSpawnHandler {
 					airCount++;
 					continue;
 				}
-				if (blacklistedGround.contains(block.getType())) {
+				if (!block.getType().isSolid() || blacklistedGround.contains(block.getType())) {
 					airCount = 0;
 					continue;
 				}

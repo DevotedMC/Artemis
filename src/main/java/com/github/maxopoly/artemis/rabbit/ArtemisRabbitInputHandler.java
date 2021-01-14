@@ -11,6 +11,7 @@ import com.github.maxopoly.artemis.rabbit.incoming.playertransfer.HandleRequestP
 import com.github.maxopoly.artemis.rabbit.incoming.playertransfer.PlayerTransferAcceptHandler;
 import com.github.maxopoly.artemis.rabbit.incoming.playertransfer.PlayerTransferRejectHandler;
 import com.github.maxopoly.artemis.rabbit.incoming.playertransfer.ReceivePlayerData;
+import com.github.maxopoly.artemis.rabbit.incoming.statetracking.CachePlayerNameHandler;
 import com.github.maxopoly.artemis.rabbit.incoming.statetracking.ZeusResetConnection;
 import com.github.maxopoly.zeus.model.TransactionIdManager;
 import com.github.maxopoly.zeus.rabbit.abstr.AbstractRabbitInputHandler;
@@ -38,6 +39,7 @@ public class ArtemisRabbitInputHandler extends AbstractRabbitInputHandler {
 		registerCommand(new ReceivePlayerLocation());
 		registerCommand(new ZeusResetConnection());
 		registerCommand(new HandleReplyReceivePlayerData());
+		registerCommand(new CachePlayerNameHandler());
 		deferCommandToStandardRequest(RequestPlayerName.REPLY_ID);
 		deferCommandToStandardRequest(RequestPlayerUUID.REPLY_ID);
 	}

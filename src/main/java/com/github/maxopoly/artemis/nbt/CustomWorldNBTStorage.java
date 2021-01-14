@@ -24,6 +24,7 @@ import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
 
 import com.github.maxopoly.artemis.ArtemisPlugin;
 import com.github.maxopoly.artemis.rabbit.session.ArtemisPlayerDataTransferSession;
+import com.github.maxopoly.artemis.util.BukkitConversion;
 import com.github.maxopoly.zeus.ZeusMain;
 import com.github.maxopoly.zeus.model.ConnectedMapState;
 import com.github.maxopoly.zeus.model.ZeusLocation;
@@ -183,6 +184,10 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 		try {
 			NBTCompound comp = new NBTCompound(NBTCompressedStreamTools.a(input));
 			ZeusLocation loc = session.getLocation();
+			if (loc == null) {
+				loc = BukkitConversion.convertLocation(
+						ArtemisPlugin.getInstance().getRandomSpawnHandler().getRandomSpawnLocation(uuid));
+			}
 			if (loc != null) {
 				comp.setDoubleArray("Pos",new double [] {loc.getX(), loc.getY(), loc.getZ()});
 			}
