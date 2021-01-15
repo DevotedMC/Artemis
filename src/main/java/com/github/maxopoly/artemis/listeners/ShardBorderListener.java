@@ -2,6 +2,7 @@ package com.github.maxopoly.artemis.listeners;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -43,6 +44,7 @@ import org.bukkit.event.vehicle.VehicleMoveEvent;
 import com.github.maxopoly.artemis.ArtemisPlugin;
 import com.github.maxopoly.artemis.ShardBorderManager;
 import com.github.maxopoly.artemis.TransitManager;
+import com.github.maxopoly.artemis.events.PlayerAttemptLeaveShard;
 import com.github.maxopoly.zeus.model.ZeusLocation;
 
 public class ShardBorderListener implements Listener {
@@ -73,6 +75,11 @@ public class ShardBorderListener implements Listener {
 		TransitManager transit = ArtemisPlugin.getInstance().getTransitManager();
 		if (!transit.putInTransit(uuid)) {
 			return; //already in transit
+		}
+		PlayerAttemptLeaveShard leaveEvent = new PlayerAttemptLeaveShard(event.getPlayer());
+		Bukkit.getPluginManager().callEvent(leaveEvent);
+		if (leaveEvent.isCancelled()) {
+			return;
 		}
 		String world = ArtemisPlugin.getInstance().getConfigManager().getWorldName();
 		double x = to.getX();
