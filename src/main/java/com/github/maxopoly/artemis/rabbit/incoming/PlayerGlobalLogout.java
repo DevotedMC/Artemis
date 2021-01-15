@@ -21,8 +21,9 @@ public class PlayerGlobalLogout extends StaticRabbitCommand {
 			JSONObject json = (JSONObject) obj;
 			String name = json.getString("name");
 			UUID uuid = UUID.fromString(json.getString("uuid"));
-			playerMan.removeOnlinePlayerData(new PlayerData(uuid, name));
-		}}
+			playerMan.removeOnlinePlayerData(uuid);
+		}
+	}
 
 	@Override
 	public String getIdentifier() {

@@ -24,7 +24,7 @@ public class RandomSpawnHandler {
 	private Set<Material> blacklistedGround;
 	private int minY;
 	private int maxY;
-	private int maxTries = 30;
+	private int maxTries = 100;
 	private int airNeeded;
 
 	public RandomSpawnHandler(ArtemisConfigManager configManager) {

@@ -67,9 +67,9 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		}
 		int lowerX = Integer.parseInt(config.getString("lower_x_bound"));
 		int lowerZ = Integer.parseInt(config.getString("lower_z_bound"));
-		boolean randomSpawnTarget = config.getBoolean("random_spawn", true);
+		boolean firstSpawnTarget = config.getBoolean("random_spawn.first_spawn", true);
 		ZeusLocation corner = new ZeusLocation(world, lowerX, 0, lowerZ);
-		connectedMapState = new ConnectedMapState(null, corner, xSize, zSize, randomSpawnTarget);
+		connectedMapState = new ConnectedMapState(null, corner, xSize, zSize, firstSpawnTarget);
 		randomSpawnBlacklist = parseMaterialList(config, "random_spawn.block_blacklist");
 		if (randomSpawnBlacklist == null) {
 			randomSpawnBlacklist = new ArrayList<>();

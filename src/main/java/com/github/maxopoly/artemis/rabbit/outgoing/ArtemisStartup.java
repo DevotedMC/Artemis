@@ -21,7 +21,7 @@ public class ArtemisStartup extends RabbitMessage {
 		config.getConnectedMapState().getUpperLeftCorner().writeToJson(pos);
 		pos.put("x_size", config.getConnectedMapState().getXSize());
 		pos.put("z_size", config.getConnectedMapState().getZSize());
-		pos.put("random_spawn", config.getConnectedMapState().isRandomSpawnTarget());
+		pos.put("random_spawn", config.getConnectedMapState().isFirstSpawnTarget());
 		json.put("pos", pos);
 	}
 
