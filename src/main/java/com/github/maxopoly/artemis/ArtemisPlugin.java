@@ -85,6 +85,7 @@ public final class ArtemisPlugin extends ACivMod {
 		while (transactionIdManager.hasActiveSessions()) {
 			getLogger().info("Waiting for closure of open rabbit sessions");
 			transactionIdManager.printActiveSessions(getLogger()::info);
+			transactionIdManager.forceCleanupSession();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {

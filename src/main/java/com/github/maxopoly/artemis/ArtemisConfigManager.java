@@ -26,6 +26,8 @@ public class ArtemisConfigManager extends CoreConfigManager {
 	private int minRandomSpawnY;
 	private int maxRandomSpawnY;
 	private int randomSpawnAirNeeded;
+	private int randomSpawnsToCache;
+	private boolean firstSpawnTarget;
 
 	public ArtemisConfigManager(ACivMod plugin) {
 		super(plugin);
@@ -67,21 +69,9 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		}
 		int lowerX = Integer.parseInt(config.getString("lower_x_bound"));
 		int lowerZ = Integer.parseInt(config.getString("lower_z_bound"));
-		boolean firstSpawnTarget = config.getBoolean("random_spawn.first_spawn", true);
+		
 		ZeusLocation corner = new ZeusLocation(world, lowerX, 0, lowerZ);
 		connectedMapState = new ConnectedMapState(null, corner, xSize, zSize, firstSpawnTarget);
-		randomSpawnBlacklist = parseMaterialList(config, "random_spawn.block_blacklist");
-		if (randomSpawnBlacklist == null) {
-			randomSpawnBlacklist = new ArrayList<>();
-		}
-		minRandomSpawnY = config.getInt("random_spawn.min_y", 1);
-		maxRandomSpawnY = config.getInt("random_spawn.max_y", 255);
-		randomSpawnAirNeeded = config.getInt("random_spawn.air_needed", 6);
-		if (maxRandomSpawnY < minRandomSpawnY) {
-			logger.severe("Maximum random spawn y is below minimum");
-			return false;
-		}
-
 		return true;
 	}
 
@@ -100,9 +90,26 @@ public class ArtemisConfigManager extends CoreConfigManager {
 	public int getMinRandomSpawnY() {
 		return minRandomSpawnY;
 	}
+	
+	public int getRandomSpawnsToCache() {
+		return randomSpawnsToCache;
+	}
 
 	protected boolean parseInternal(ConfigurationSection config) {
 		this.config = config;
+		firstSpawnTarget = config.getBoolean("random_spawn.first_spawn", true);
+		randomSpawnBlacklist = parseMaterialList(config, "random_spawn.block_blacklist");
+		if (randomSpawnBlacklist == null) {
+			randomSpawnBlacklist = new ArrayList<>();
+		}
+		minRandomSpawnY = config.getInt("random_spawn.min_y", 1);
+		maxRandomSpawnY = config.getInt("random_spawn.max_y", 255);
+		randomSpawnAirNeeded = config.getInt("random_spawn.air_needed", 6);
+		randomSpawnAirNeeded = config.getInt("random_spawn.spawns_cached", 10);
+		if (maxRandomSpawnY < minRandomSpawnY) {
+			logger.severe("Maximum random spawn y is below minimum");
+			return false;
+		}
 		if (!parseMapPosition(config.getConfigurationSection("position"))) {
 			logger.severe("No position configured in config");
 			return false;

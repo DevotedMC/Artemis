@@ -42,6 +42,10 @@ public final class NameAPI {
 		}
 		return ArtemisPlugin.getInstance().getPlayerDataManager().getName(uuid);
 	}
+	
+	public static String getNameLocal(UUID uuid) {
+		return ArtemisPlugin.getInstance().getPlayerDataManager().getCachedName(uuid);
+	}
 
 	public static UUID getUUID(String name) {
 		Preconditions.checkNotNull(name);

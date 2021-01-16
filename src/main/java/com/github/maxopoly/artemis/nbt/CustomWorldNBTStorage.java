@@ -64,7 +64,7 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 		activePlayers.remove(uuid);
 	}
 
-	private static synchronized boolean isActive(UUID uuid) {
+	public static synchronized boolean isActive(UUID uuid) {
 		return activePlayers.contains(uuid);
 	}
 
@@ -152,6 +152,8 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 				entityhuman.locY(), entityhuman.locZ());
 		session.setData(data);
 		session.setLocation(location);
+		//always vanilla save
+		vanillaSave(entityhuman);
 		ArtemisPlugin.getInstance().getRabbitHandler()
 				.sendMessage(new SendPlayerData(transactionId, entityhuman.getUniqueID(), data, location));
 	}

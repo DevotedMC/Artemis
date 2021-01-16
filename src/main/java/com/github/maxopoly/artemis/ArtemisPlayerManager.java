@@ -78,5 +78,9 @@ public class ArtemisPlayerManager extends PlayerManager<PlayerData> {
 		cacheUUIDToName.put(playerUUID, name);
 		return name;
 	}
+	
+	public String getCachedName(UUID playerUUID) {
+		return cacheUUIDToName.get(playerUUID);
+	}
 
 }
