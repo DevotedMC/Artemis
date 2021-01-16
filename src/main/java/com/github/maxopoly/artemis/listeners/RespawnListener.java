@@ -12,7 +12,10 @@ public class RespawnListener implements Listener {
 
 	@EventHandler
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
-		if (event.isAnchorSpawn()) {
+		if (!ArtemisPlugin.getInstance().getConfigManager().getOverrideAnchorSpawn() && event.isAnchorSpawn()) {
+			return;
+		}
+		if (!ArtemisPlugin.getInstance().getConfigManager().getOverrideBedSpawn() && event.isBedSpawn()) {
 			return;
 		}
 		event.setRespawnLocation(ArtemisPlugin.getInstance().getRandomSpawnHandler()

@@ -27,6 +27,9 @@ public class ArtemisConfigManager extends CoreConfigManager {
 	private int maxRandomSpawnY;
 	private int randomSpawnAirNeeded;
 
+	private boolean allowAnchorBeforeRandomSpawn;
+	private boolean allowBedBeforeRandomSpawn;
+
 	public ArtemisConfigManager(ACivMod plugin) {
 		super(plugin);
 	}
@@ -77,6 +80,8 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		minRandomSpawnY = config.getInt("random_spawn.min_y", 1);
 		maxRandomSpawnY = config.getInt("random_spawn.max_y", 255);
 		randomSpawnAirNeeded = config.getInt("random_spawn.air_needed", 6);
+		allowAnchorBeforeRandomSpawn = config.getBoolean("random_spawn.overrideAnchorSpawn", false);
+		allowBedBeforeRandomSpawn = config.getBoolean("random_spawn.overrideBedSpawn", false);
 		if (maxRandomSpawnY < minRandomSpawnY) {
 			logger.severe("Maximum random spawn y is below minimum");
 			return false;
@@ -138,6 +143,14 @@ public class ArtemisConfigManager extends CoreConfigManager {
 
 	public ConnectionFactory getConnectionFactory() {
 		return connectionFactory;
+	}
+
+	public boolean getOverrideAnchorSpawn() {
+		return allowAnchorBeforeRandomSpawn;
+	}
+
+	public boolean getOverrideBedSpawn() {
+		return allowBedBeforeRandomSpawn;
 	}
 
 }
