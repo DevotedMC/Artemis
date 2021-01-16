@@ -101,18 +101,21 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 	}
 
 	public void saveFullData(NBTTagCompound compound, UUID uuid) {
-		try {
-			File file = File.createTempFile(uuid.toString() + "-", ".dat", this.playerDir);
-			NBTCompressedStreamTools.a(compound, new FileOutputStream(file));
-			File file1 = new File(this.playerDir, uuid + ".dat");
-			File file2 = new File(this.playerDir, uuid + ".dat_old");
-			SystemUtils.a(file1, file, file2);
-		} catch (Exception exception) {
-			ZeusMain.getInstance().getLogger().warn("Failed to save player data for {}", uuid.toString());
-		}
+		new Thread(() -> {
+			try {
+				File file = File.createTempFile(uuid.toString() + "-", ".dat", this.playerDir);
+				NBTCompressedStreamTools.a(compound, new FileOutputStream(file));
+				File file1 = new File(this.playerDir, uuid + ".dat");
+				File file2 = new File(this.playerDir, uuid + ".dat_old");
+				SystemUtils.a(file1, file, file2);
+			} catch (Exception exception) {
+				ZeusMain.getInstance().getLogger().warn("Failed to save player data for {}", uuid.toString());
+			}
+		}).start();
+		;
 	}
-	
-	public void saveFullData(byte [] rawData, UUID uuid) {
+
+	public void saveFullData(byte[] rawData, UUID uuid) {
 		try {
 			ByteArrayInputStream input = new ByteArrayInputStream(rawData);
 			NBTTagCompound comp = NBTCompressedStreamTools.a(input);
