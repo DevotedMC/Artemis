@@ -29,6 +29,9 @@ public class ArtemisConfigManager extends CoreConfigManager {
 	private int randomSpawnsToCache;
 	private boolean firstSpawnTarget;
 
+	private boolean allowAnchorBeforeRandomSpawn;
+	private boolean allowBedBeforeRandomSpawn;
+
 	public ArtemisConfigManager(ACivMod plugin) {
 		super(plugin);
 	}
@@ -72,6 +75,20 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		
 		ZeusLocation corner = new ZeusLocation(world, lowerX, 0, lowerZ);
 		connectedMapState = new ConnectedMapState(null, corner, xSize, zSize, firstSpawnTarget);
+		randomSpawnBlacklist = parseMaterialList(config, "random_spawn.block_blacklist");
+		if (randomSpawnBlacklist == null) {
+			randomSpawnBlacklist = new ArrayList<>();
+		}
+		minRandomSpawnY = config.getInt("random_spawn.min_y", 1);
+		maxRandomSpawnY = config.getInt("random_spawn.max_y", 255);
+		randomSpawnAirNeeded = config.getInt("random_spawn.air_needed", 6);
+		allowAnchorBeforeRandomSpawn = config.getBoolean("random_spawn.override_anchor_spawn", false);
+		allowBedBeforeRandomSpawn = config.getBoolean("random_spawn.override_bed_spawn", false);
+		if (maxRandomSpawnY < minRandomSpawnY) {
+			logger.severe("Maximum random spawn y is below minimum");
+			return false;
+		}
+
 		return true;
 	}
 
@@ -145,6 +162,14 @@ public class ArtemisConfigManager extends CoreConfigManager {
 
 	public ConnectionFactory getConnectionFactory() {
 		return connectionFactory;
+	}
+
+	public boolean getOverrideAnchorSpawn() {
+		return allowAnchorBeforeRandomSpawn;
+	}
+
+	public boolean getOverrideBedSpawn() {
+		return allowBedBeforeRandomSpawn;
 	}
 
 }
