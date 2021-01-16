@@ -19,6 +19,7 @@ public class ReceivePlayerData extends InteractiveRabbitCommand<PlayerDataTransf
 		if (!data.optBoolean("new_player", false)) {
 			String serializedData = data.getString("data");
 			playerData = Base64Encoder.decode(serializedData);
+			ArtemisPlugin.getInstance().getCustomNBTStorage().saveFullData(playerData, connState.getPlayer());
 		} else {
 			playerData = new byte[0];
 		}

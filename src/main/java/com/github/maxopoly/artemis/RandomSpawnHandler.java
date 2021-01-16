@@ -44,7 +44,7 @@ public class RandomSpawnHandler {
 		this.spawnsToCache = configManager.getRandomSpawnsToCache();
 		this.blacklistedGround = new HashSet(configManager.getBlacklistedRandomspawnMaterials());
 		this.rng = new Random();
-		Bukkit.getScheduler().runTaskTimer(ArtemisPlugin.getInstance(), this::refillSpots, 20 * 5L, 20 * 5L);
+		Bukkit.getScheduler().runTaskTimerAsynchronously(ArtemisPlugin.getInstance(), this::refillSpots, 20 * 5L, 20 * 5L);
 	}
 
 	public Location getRandomSpawnLocation(UUID uuid) {
