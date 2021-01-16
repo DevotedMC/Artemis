@@ -1,6 +1,5 @@
 package com.github.maxopoly.artemis.listeners;
 
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,6 +12,9 @@ public class RespawnListener implements Listener {
 
 	@EventHandler
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
+		if (event.isAnchorSpawn()) {
+			return;
+		}
 		event.setRespawnLocation(ArtemisPlugin.getInstance().getRandomSpawnHandler()
 				.getRandomSpawnLocation(event.getPlayer().getUniqueId()));
 	}
