@@ -18,5 +18,5 @@ debug: false
 #  idle_timeout: 600000
 #  max_lifetime: 7200000
 
-  overrideAnchorSpawn: false
-  overrideBedSpawn: false
+overrideAnchorSpawn: false
+overrideBedSpawn: false

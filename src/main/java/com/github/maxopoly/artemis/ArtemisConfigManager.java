@@ -122,7 +122,7 @@ public class ArtemisConfigManager extends CoreConfigManager {
 		minRandomSpawnY = config.getInt("random_spawn.min_y", 1);
 		maxRandomSpawnY = config.getInt("random_spawn.max_y", 255);
 		randomSpawnAirNeeded = config.getInt("random_spawn.air_needed", 6);
-		randomSpawnAirNeeded = config.getInt("random_spawn.spawns_cached", 10);
+		randomSpawnsToCache = config.getInt("random_spawn.spawns_cached", 10);
 		if (maxRandomSpawnY < minRandomSpawnY) {
 			logger.severe("Maximum random spawn y is below minimum");
 			return false;

@@ -110,6 +110,8 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 		}
 	}
 	
+	public void vanillaSaveFullData(byte )
+	
 	public NBTTagCompound vanillaLoad(UUID uuid) {
 		NBTTagCompound nbttagcompound = null;
 		try {
