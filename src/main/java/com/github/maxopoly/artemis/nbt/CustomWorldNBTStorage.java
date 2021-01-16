@@ -109,8 +109,7 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 					entityhuman.getDisplayName().getString());
 		}
 	}
-	
-	public void vanillaSaveFullData(byte )
+
 	
 	public NBTTagCompound vanillaLoad(UUID uuid) {
 		NBTTagCompound nbttagcompound = null;
