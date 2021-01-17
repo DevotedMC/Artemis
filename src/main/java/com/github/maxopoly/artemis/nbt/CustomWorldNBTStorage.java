@@ -112,7 +112,6 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 				ZeusMain.getInstance().getLogger().warn("Failed to save player data for {}", uuid.toString());
 			}
 		}).start();
-		;
 	}
 
 	public void saveFullData(byte[] rawData, UUID uuid) {

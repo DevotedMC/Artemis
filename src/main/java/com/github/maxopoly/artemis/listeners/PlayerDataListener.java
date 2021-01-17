@@ -19,6 +19,9 @@ public class PlayerDataListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void preLoginDataFetch(AsyncPlayerPreLoginEvent event) {
+		if (CustomWorldNBTStorage.isActive(event.getUniqueId())) {
+			CustomWorldNBTStorage.removeActivePlayer(event.getUniqueId());
+		}
 		RabbitHandler rabbit = ArtemisPlugin.getInstance().getRabbitHandler();
 		String ticket = ArtemisPlugin.getInstance().getTransactionIdManager().pullNewTicket();
 		ArtemisPlayerDataTransferSession session = new ArtemisPlayerDataTransferSession(ArtemisPlugin.getInstance().getZeus(), ticket,
