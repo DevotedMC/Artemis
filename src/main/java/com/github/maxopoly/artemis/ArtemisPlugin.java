@@ -82,6 +82,7 @@ public final class ArtemisPlugin extends ACivMod {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			p.kickPlayer("Server is shutting down");
 		}
+		customNBTHandler.stopExecutor();
 		while (transactionIdManager.hasActiveSessions()) {
 			getLogger().info("Waiting for closure of open rabbit sessions");
 			transactionIdManager.printActiveSessions(getLogger()::info);

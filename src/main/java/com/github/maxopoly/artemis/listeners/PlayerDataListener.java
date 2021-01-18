@@ -19,13 +19,10 @@ public class PlayerDataListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void preLoginDataFetch(AsyncPlayerPreLoginEvent event) {
-		if (CustomWorldNBTStorage.isActive(event.getUniqueId())) {
-			CustomWorldNBTStorage.removeActivePlayer(event.getUniqueId());
-		}
 		RabbitHandler rabbit = ArtemisPlugin.getInstance().getRabbitHandler();
 		String ticket = ArtemisPlugin.getInstance().getTransactionIdManager().pullNewTicket();
-		ArtemisPlayerDataTransferSession session = new ArtemisPlayerDataTransferSession(ArtemisPlugin.getInstance().getZeus(), ticket,
-				event.getUniqueId());
+		ArtemisPlayerDataTransferSession session = new ArtemisPlayerDataTransferSession(
+				ArtemisPlugin.getInstance().getZeus(), ticket, event.getUniqueId());
 		ArtemisPlugin.getInstance().getTransactionIdManager().putSession(session);
 		rabbit.sendMessage(new RequestPlayerData(ticket, event.getUniqueId()));
 		event.setKickMessage(null);
@@ -40,7 +37,8 @@ public class PlayerDataListener implements Listener {
 			}
 		}
 		if (event.getKickMessage().equals("D")) {
-			event.disallow(Result.KICK_OTHER, "Internal data error, tell an admin about this");
+			event.disallow(Result.KICK_OTHER, "Internal data error, try waiting a few seconds and then login again. "
+					+ "If that does not help, consult an admin");
 			return;
 		}
 		if (!event.getKickMessage().equals("A")) {
@@ -49,6 +47,13 @@ public class PlayerDataListener implements Listener {
 		}
 		CustomWorldNBTStorage.addActivePlayer(event.getUniqueId());
 		event.allow();
+		// if login doesn't complete, remove them again, give them full 10 seconds to
+		// time out
+		Bukkit.getScheduler().runTaskLater(ArtemisPlugin.getInstance(), () -> {
+			if (Bukkit.getPlayer(event.getUniqueId()) == null) {
+				CustomWorldNBTStorage.removeActivePlayer(event.getUniqueId());
+			}
+		}, 20 * 10L);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)

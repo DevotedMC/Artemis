@@ -15,6 +15,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -51,6 +57,8 @@ import vg.civcraft.mc.civmodcore.serialization.NBTCompound;
 
 public class CustomWorldNBTStorage extends WorldNBTStorage {
 
+	private final ExecutorService saveExecutor = Executors.newFixedThreadPool(1);
+
 	private static final String CUSTOM_DATA_ID = "artemis_data";
 
 	private static final Set<UUID> activePlayers = new HashSet<>();
@@ -81,6 +89,10 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 		activePlayers.clear();
 	}
 
+	public void stopExecutor() {
+		saveExecutor.shutdown();
+	}
+
 	public static ZeusLocation readZeusLocation(byte[] playerData) {
 		try {
 			NBTTagCompound nbttagcompound = NBTCompressedStreamTools.a(new ByteArrayInputStream(playerData));
@@ -101,7 +113,7 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 	}
 
 	public void saveFullData(NBTTagCompound compound, UUID uuid) {
-		new Thread(() -> {
+		saveExecutor.submit(() -> {
 			try {
 				File file = File.createTempFile(uuid.toString() + "-", ".dat", this.playerDir);
 				NBTCompressedStreamTools.a(compound, new FileOutputStream(file));
@@ -111,7 +123,8 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 			} catch (Exception exception) {
 				ZeusMain.getInstance().getLogger().warn("Failed to save player data for {}", uuid.toString());
 			}
-		}).start();
+		});
+
 	}
 
 	public void saveFullData(byte[] rawData, UUID uuid) {
@@ -261,8 +274,14 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 			}
 			String serial = specialDataCompound.getString(setting.getIdentifier());
 			extractedData.put(setting.getIdentifier(), serial);
-			Object deserialized = setting.deserialize(serial);
-			setting.setValue(player, deserialized);
+			try {
+				Object deserialized = setting.deserialize(serial);
+				setting.setValueInternal(player, deserialized);
+			} catch(Exception e) {
+				//otherwise bad data prevents login entirely
+				ArtemisPlugin.getInstance().getLogger().log(Level.SEVERE, 
+						"Failed to parse player setting " + setting.getIdentifier(), e);
+			}
 		}
 		this.customDataOriginallyLoaded.put(player, extractedData);
 	}
