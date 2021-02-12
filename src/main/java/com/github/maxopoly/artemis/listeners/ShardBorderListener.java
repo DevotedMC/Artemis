@@ -79,6 +79,7 @@ public class ShardBorderListener implements Listener {
 		PlayerAttemptLeaveShard leaveEvent = new PlayerAttemptLeaveShard(event.getPlayer());
 		Bukkit.getPluginManager().callEvent(leaveEvent);
 		if (leaveEvent.isCancelled()) {
+			transit.removeFromTransit(uuid);
 			return;
 		}
 		String world = ArtemisPlugin.getInstance().getConfigManager().getWorldName();
