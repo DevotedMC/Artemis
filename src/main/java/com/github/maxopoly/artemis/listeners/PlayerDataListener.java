@@ -7,6 +7,7 @@ import com.github.maxopoly.artemis.rabbit.RabbitHandler;
 import com.github.maxopoly.artemis.rabbit.outgoing.RequestPlayerData;
 import com.github.maxopoly.artemis.rabbit.session.ArtemisPlayerDataTransferSession;
 import net.minelink.ctplus.CombatTagPlus;
+import net.minelink.ctplus.event.CombatLogEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -63,7 +64,15 @@ public class PlayerDataListener implements Listener {
 		Bukkit.getScheduler().runTask(ArtemisPlugin.getInstance(), () -> ArtemisPlugin.getInstance().getTransitManager()
 				.removeFromTransit(event.getPlayer().getUniqueId()));
 	}
-	
+
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void onShardLog(CombatLogEvent event) {
+		Player player = event.getPlayer();
+		CombatLogEvent.Reason logReason = event.getReason();
+		if (logReason == CombatLogEvent.Reason.UNSAFE_LOGOUT && ArtemisPlugin.getInstance().getTransitManager().isInTransit(player.getUniqueId())) {
+			event.setCancelled(true);
+		}
+	}
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onTransit(PlayerAttemptLeaveShard event) {
 		Player player = event.getPlayer();
