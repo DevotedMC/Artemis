@@ -1,19 +1,21 @@
 package com.github.maxopoly.artemis.listeners;
 
+import com.github.maxopoly.artemis.ArtemisPlugin;
+import com.github.maxopoly.artemis.events.PlayerAttemptLeaveShard;
+import com.github.maxopoly.artemis.nbt.CustomWorldNBTStorage;
+import com.github.maxopoly.artemis.rabbit.RabbitHandler;
+import com.github.maxopoly.artemis.rabbit.outgoing.RequestPlayerData;
+import com.github.maxopoly.artemis.rabbit.session.ArtemisPlayerDataTransferSession;
+import net.minelink.ctplus.CombatTagPlus;
+import net.minelink.ctplus.event.CombatLogEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
-
-import com.github.maxopoly.artemis.ArtemisPlugin;
-import com.github.maxopoly.artemis.nbt.CustomWorldNBTStorage;
-import com.github.maxopoly.artemis.rabbit.RabbitHandler;
-import com.github.maxopoly.artemis.rabbit.outgoing.RequestPlayerData;
-import com.github.maxopoly.artemis.rabbit.session.ArtemisPlayerDataTransferSession;
-import com.github.maxopoly.zeus.rabbit.sessions.PlayerDataTransferSession;
 
 public class PlayerDataListener implements Listener {
 
@@ -63,4 +65,20 @@ public class PlayerDataListener implements Listener {
 				.removeFromTransit(event.getPlayer().getUniqueId()));
 	}
 
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void onShardLog(CombatLogEvent event) {
+		Player player = event.getPlayer();
+		CombatLogEvent.Reason logReason = event.getReason();
+		if (logReason == CombatLogEvent.Reason.UNSAFE_LOGOUT && ArtemisPlugin.getInstance().getTransitManager().isInTransit(player.getUniqueId())) {
+			event.setCancelled(true);
+		}
+	}
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void onTransit(PlayerAttemptLeaveShard event) {
+		Player player = event.getPlayer();
+		CombatTagPlus ctPlugin = CombatTagPlus.getPlugin(CombatTagPlus.class);
+		if (ctPlugin.getTagManager().isTagged(player.getUniqueId())) {
+			ctPlugin.getTagManager().untag(player.getUniqueId());
+		}
+	}
 }

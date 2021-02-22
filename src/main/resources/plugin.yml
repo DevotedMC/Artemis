@@ -10,7 +10,7 @@ api-version: 1.14
 
 depend: [CivModCore]
 
-softdepend: []
+softdepend: [CombatTagPlus]
 
 authors: [Maxopoly]
 
