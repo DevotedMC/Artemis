@@ -1,5 +1,6 @@
 package com.github.maxopoly.artemis.rabbit;
 
+import com.github.maxopoly.artemis.rabbit.requests.SendPlayerTextComponent;
 import java.util.logging.Logger;
 
 import com.github.maxopoly.artemis.rabbit.incoming.PlayerGlobalLogin;
@@ -42,8 +43,10 @@ public class ArtemisRabbitInputHandler extends AbstractRabbitInputHandler {
 		registerCommand(new HandleReplyReceivePlayerData());
 		registerCommand(new CachePlayerNameHandler());
 		registerCommand(new HandleZeusRequestPlayerData());
+		registerCommand(new com.github.maxopoly.artemis.rabbit.incoming.SendPlayerTextComponent());
 		deferCommandToStandardRequest(RequestPlayerName.REPLY_ID);
 		deferCommandToStandardRequest(RequestPlayerUUID.REPLY_ID);
+		deferCommandToStandardRequest(SendPlayerTextComponent.REPLY_ID);
 	}
 
 	@Override
