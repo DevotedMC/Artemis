@@ -25,10 +25,10 @@ public class PlayerDataListener implements Listener {
 				ArtemisPlugin.getInstance().getZeus(), ticket, event.getUniqueId());
 		ArtemisPlugin.getInstance().getTransactionIdManager().putSession(session);
 		rabbit.sendMessage(new RequestPlayerData(ticket, event.getUniqueId()));
-		event.setKickMessage(null);
+		event.setKickMessage("");
 		ArtemisPlugin.getInstance().getPlayerDataCache().putWaiting(event.getUniqueId(), event);
 		synchronized (event) {
-			while (event.getKickMessage() == null) {
+			while (event.getKickMessage().equals("")) {
 				try {
 					event.wait();
 				} catch (InterruptedException e) {
