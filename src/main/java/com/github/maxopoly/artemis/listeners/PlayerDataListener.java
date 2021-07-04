@@ -13,7 +13,6 @@ import com.github.maxopoly.artemis.nbt.CustomWorldNBTStorage;
 import com.github.maxopoly.artemis.rabbit.RabbitHandler;
 import com.github.maxopoly.artemis.rabbit.outgoing.RequestPlayerData;
 import com.github.maxopoly.artemis.rabbit.session.ArtemisPlayerDataTransferSession;
-import com.github.maxopoly.zeus.rabbit.sessions.PlayerDataTransferSession;
 
 public class PlayerDataListener implements Listener {
 

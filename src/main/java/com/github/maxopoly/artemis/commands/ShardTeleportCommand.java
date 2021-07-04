@@ -1,87 +1,46 @@
 package com.github.maxopoly.artemis.commands;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
-
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.Optional;
+import co.aikar.commands.annotation.Syntax;
 import com.github.maxopoly.artemis.ArtemisPlugin;
 import com.github.maxopoly.artemis.rabbit.outgoing.RequestPlayerLocation;
 import com.github.maxopoly.artemis.rabbit.session.ALocationRequestSession;
 import com.github.maxopoly.zeus.model.PlayerData;
 import com.github.maxopoly.zeus.model.TransactionIdManager;
 import com.github.maxopoly.zeus.model.ZeusLocation;
+import java.util.UUID;
+import java.util.function.Consumer;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-import vg.civcraft.mc.civmodcore.command.CivCommand;
-import vg.civcraft.mc.civmodcore.command.StandaloneCommand;
+public class ShardTeleportCommand extends BaseCommand {
 
-@CivCommand(id = "stp")
-public class ShardTeleportCommand extends StandaloneCommand {
-
-	@Override
-	public boolean execute(CommandSender sender, String[] args) {
-		if (args.length <= 4 && args.length != 2) {
-			if (!(sender instanceof Player)) {
-				sender.sendMessage("Fuck off");
-				return true;
-			}
-		}
-		switch (args.length) {
-		case 1: { // TP Sender to player
-			UUID playerToTpTo = getPlayerUUID(sender, args[0]);
+	@CommandAlias("stp")
+	@Syntax("[player] [optional_player]")
+	@Description("Teleport to a player across any shard")
+	@CommandPermission("artemis.tp")
+	public void execute(Player sender, @Optional String targetPlayer, @Optional String optionalPlayer) {// TP Sender to player
+		if (targetPlayer != null && optionalPlayer == null) {
+			UUID playerToTpTo = getPlayerUUID(sender, targetPlayer);
 			if (playerToTpTo == null) {
-				return true;
+				return;
 			}
 			setupLocationRequestForPlayer(playerToTpTo, l -> teleportToLocation(((Player) sender).getUniqueId(), l));
-			break;
 		}
-		case 2: // Tp First player to second one
-			UUID playerToTp = getPlayerUUID(sender, args[0]);
-			UUID playerToTpTo = getPlayerUUID(sender, args[1]);
+		if (targetPlayer != null && optionalPlayer != null) {
+			// Tp First player to second one
+			UUID playerToTp = getPlayerUUID(sender, targetPlayer);
+			UUID playerToTpTo = getPlayerUUID(sender, optionalPlayer);
 			if (playerToTp == null || playerToTpTo == null) {
-				return true;
+				return;
 			}
 			setupLocationRequestForPlayer(playerToTpTo, l -> teleportToLocation(playerToTp, l));
-			break;
-		case 3: // Tp sender to coords
-		case 4: {
-			String world;
-			if (args.length == 3) {
-				world = ArtemisPlugin.getInstance().getConfigManager().getWorldName();
-			} else {
-				world = args[0];
-			}
-			Integer x = parseInt(sender, args[args.length - 3]);
-			Integer y = parseInt(sender, args[args.length - 2]);
-			Integer z = parseInt(sender, args[args.length - 1]);
-			if (x == null || y == null || z == null) {
-				return true;
-			}
-			ZeusLocation location = new ZeusLocation(world, x, y, z);
-			teleportToLocation(((Player) sender).getUniqueId(), location);
-			break;}
-		case 5:
-			UUID targetPlayer = getPlayerUUID(sender, args[0]);
-			if (targetPlayer == null) {
-				return true;
-			}
-			String world = args[1];
-			Integer x = parseInt(sender, args[2]);
-			Integer y = parseInt(sender, args[3]);
-			Integer z = parseInt(sender, args[4]);
-			if (x == null || y == null || z == null) {
-				return true;
-			}
-			ZeusLocation location = new ZeusLocation(world, x, y, z);
-			teleportToLocation(targetPlayer, location);
-			break;
-		default:
-			return false;
 		}
-		return true;
 	}
 
 	private void setupLocationRequestForPlayer(UUID player, Consumer<ZeusLocation> callback) {
@@ -104,12 +63,6 @@ public class ShardTeleportCommand extends StandaloneCommand {
 			return null;
 		}
 		return data.getUUID();
-	}
-
-	@Override
-	public List<String> tabComplete(CommandSender sender, String[] args) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	private Integer parseInt(CommandSender sender, String toParse) {

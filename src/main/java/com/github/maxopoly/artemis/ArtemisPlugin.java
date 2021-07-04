@@ -1,11 +1,6 @@
 package com.github.maxopoly.artemis;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
+import com.github.maxopoly.artemis.commands.ArtemisCommandManager;
 import com.github.maxopoly.artemis.listeners.PlayerDataListener;
 import com.github.maxopoly.artemis.listeners.RespawnListener;
 import com.github.maxopoly.artemis.listeners.ShardBorderListener;
@@ -15,7 +10,11 @@ import com.github.maxopoly.artemis.rabbit.RabbitHandler;
 import com.github.maxopoly.artemis.rabbit.outgoing.ArtemisStartup;
 import com.github.maxopoly.zeus.model.TransactionIdManager;
 import com.github.maxopoly.zeus.servers.ZeusServer;
-
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import vg.civcraft.mc.civmodcore.ACivMod;
 
 public final class ArtemisPlugin extends ACivMod {
@@ -37,6 +36,7 @@ public final class ArtemisPlugin extends ACivMod {
 	private ZeusServer zeus;
 	private CustomWorldNBTStorage customNBTHandler;
 	private RandomSpawnHandler randomSpawnHandler;
+	private ArtemisCommandManager commandManager;
 	private ScheduledExecutorService transactionIdCleanup; // can't be a bukkit thread, because those are disable before
 															// onDisable and we
 	// still need it there
@@ -59,6 +59,7 @@ public final class ArtemisPlugin extends ACivMod {
 		this.globalPlayerTracker = new ArtemisPlayerManager();
 		this.randomSpawnHandler = new RandomSpawnHandler(this.configManager);
 		this.rabbitInputHandler = new ArtemisRabbitInputHandler(getLogger(), transactionIdManager);
+		this.commandManager = new ArtemisCommandManager(this);
 		this.rabbitHandler = new RabbitHandler(configManager.getConnectionFactory(),
 				configManager.getIncomingRabbitQueue(), configManager.getOutgoingRabbitQueue(), transactionIdManager,
 				getLogger(), zeus, rabbitInputHandler);
@@ -146,4 +147,7 @@ public final class ArtemisPlugin extends ACivMod {
 		return transactionIdManager;
 	}
 
+	public ArtemisCommandManager getCommandManager() {
+		return commandManager;
+	}
 }
