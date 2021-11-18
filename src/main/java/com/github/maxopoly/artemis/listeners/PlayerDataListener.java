@@ -1,5 +1,6 @@
 package com.github.maxopoly.artemis.listeners;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,10 +25,10 @@ public class PlayerDataListener implements Listener {
 				ArtemisPlugin.getInstance().getZeus(), ticket, event.getUniqueId());
 		ArtemisPlugin.getInstance().getTransactionIdManager().putSession(session);
 		rabbit.sendMessage(new RequestPlayerData(ticket, event.getUniqueId()));
-		event.setKickMessage("");
+		event.kickMessage(Component.empty());
 		ArtemisPlugin.getInstance().getPlayerDataCache().putWaiting(event.getUniqueId(), event);
 		synchronized (event) {
-			while (event.getKickMessage().equals("")) {
+			while (event.kickMessage().equals(Component.empty())) {
 				try {
 					event.wait();
 				} catch (InterruptedException e) {
@@ -35,12 +36,12 @@ public class PlayerDataListener implements Listener {
 				}
 			}
 		}
-		if (event.getKickMessage().equals("D")) {
+		if (event.kickMessage().equals(Component.text("D"))) {
 			event.disallow(Result.KICK_OTHER, "Internal data error, try waiting a few seconds and then login again. "
 					+ "If that does not help, consult an admin");
 			return;
 		}
-		if (!event.getKickMessage().equals("A")) {
+		if (!event.kickMessage().equals(Component.text("A"))) {
 			event.disallow(Result.KICK_OTHER, "Special internal error, tell an admin about this");
 			return;
 		}

@@ -16,7 +16,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -40,10 +39,9 @@ import net.minecraft.world.level.storage.Convertable;
 import net.minecraft.world.level.storage.SavedFile;
 import net.minecraft.world.level.storage.WorldNBTStorage;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
-import vg.civcraft.mc.civmodcore.nbt.NBTHelper;
+import vg.civcraft.mc.civmodcore.nbt.wrappers.NBTCompound;
 import vg.civcraft.mc.civmodcore.players.settings.PlayerSetting;
 import vg.civcraft.mc.civmodcore.players.settings.PlayerSettingAPI;
 
@@ -88,10 +86,10 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 
 	public static ZeusLocation readZeusLocation(byte[] playerData) {
 		try {
-			NBTTagCompound nbttagcompound = NBTCompressedStreamTools.a(new ByteArrayInputStream(playerData));
-			Location pos = NBTHelper.locationFromNBT(nbttagcompound);
+			NBTCompound nbtCompound = new NBTCompound(NBTCompressedStreamTools.a(new ByteArrayInputStream(playerData)));
+			double[] pos = nbtCompound.getDoubleArray("Pos");
 			ConnectedMapState mapState = ArtemisPlugin.getInstance().getConfigManager().getConnectedMapState();
-			return new ZeusLocation(mapState.getWorld(), pos.getX(), pos.getY(), pos.getZ());
+			return new ZeusLocation(mapState.getWorld(), pos[0], pos[1], pos[2]);
 		} catch (IOException e) {
 			ZeusMain.getInstance().getLogger().error("Failed to deserialize nbt", playerData);
 			return null;
@@ -202,15 +200,14 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 		}
 		ByteArrayInputStream input = new ByteArrayInputStream(session.getData());
 		try {
-			NBTTagCompound comp = NBTCompressedStreamTools.a(input);
+			NBTCompound comp = new NBTCompound(NBTCompressedStreamTools.a(input));
 			ZeusLocation loc = session.getLocation();
 			if (loc == null) {
 				loc = BukkitConversion.convertLocation(
 						ArtemisPlugin.getInstance().getRandomSpawnHandler().getRandomSpawnLocation(uuid));
 			}
 			if (loc != null) {
-				NBTTagCompound nbtLoc = NBTHelper.locationToNBT(new Location(Bukkit.getWorld(loc.getWorld()), loc.getX(), loc.getY(), loc.getZ()));
-				comp.set("Pos", nbtLoc);
+				comp.setDoubleArray("Pos", new double[] {loc.getX(), loc.getY(), loc.getZ()});
 			}
 			insertWorldUUID(comp);
 			if (comp.hasKeyOfType(CUSTOM_DATA_ID, 10)) {
@@ -240,7 +237,7 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 			Field trueServerField = CraftServer.class.getDeclaredField("console");
 			trueServerField.setAccessible(true);
 			MinecraftServer trueServer = (MinecraftServer) trueServerField.get(server);
-			Field nbtField = MinecraftServer.class.getDeclaredField("worldNBTStorage");
+			Field nbtField = MinecraftServer.class.getDeclaredField("k");
 			Convertable.ConversionSession session = trueServer.j;
 			DataFixer dataFixer = trueServer.O;
 			CustomWorldNBTStorage customNBT = new CustomWorldNBTStorage(session, dataFixer);
@@ -248,7 +245,7 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 			Field playerListField = CraftServer.class.getDeclaredField("playerList");
 			playerListField.setAccessible(true);
 			DedicatedPlayerList playerList = (DedicatedPlayerList) playerListField.get(server);
-			Field nbtPlayerListField = PlayerList.class.getField("playerFileData");
+			Field nbtPlayerListField = PlayerList.class.getField("r");
 			overwriteFinalField(nbtPlayerListField, customNBT, playerList);
 			return customNBT;
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
@@ -299,15 +296,9 @@ public class CustomWorldNBTStorage extends WorldNBTStorage {
 	private static void overwriteFinalField(Field field, Object newValue, Object obj) {
 		try {
 			field.setAccessible(true);
-			// remove final modifier from field
-			Field modifiersField;
-			modifiersField = Field.class.getDeclaredField("modifiers");
-			modifiersField.setAccessible(true);
-			modifiersField.setInt(field, field.getModifiers() & ~Modifier.PROTECTED);
 			field.set(obj, newValue);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			ArtemisPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to set final field", e);
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			ArtemisPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to set final field", e.getStackTrace());
 		}
 	}
-
 }
