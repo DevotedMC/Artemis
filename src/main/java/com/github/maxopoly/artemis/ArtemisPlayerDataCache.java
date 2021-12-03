@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 
 import com.github.maxopoly.zeus.model.ZeusLocation;
@@ -38,10 +39,10 @@ public class ArtemisPlayerDataCache {
 		}
 		// we abuse the kick message to deliver the result
 		if (session.getData() == null) {
-			event.setKickMessage("D"); //deny
+			event.kickMessage(Component.text("D")); //deny
 		} else {
 			sessions.put(uuid, session);
-			event.setKickMessage("A"); //accept
+			event.kickMessage(Component.text("A")); //accept
 		}
 		//if player was sent from another server, this will contain where the originating server wanted the player to go
 		ZeusLocation cachedLocation = targetLocations.remove(uuid);

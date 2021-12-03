@@ -54,7 +54,7 @@ public class ArtemisPlayerManager extends PlayerManager<PlayerData> {
 	 * If the player is not found in the cache, Zeus is queried for the players name
 	 * (blocking)
 	 * 
-	 * @param uuid UUID of the player to look up
+	 * @param playerUUID UUID of the player to look up
 	 * @return Name of the given player or null if no such player is known
 	 */
 	public String getName(UUID playerUUID) {

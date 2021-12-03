@@ -1,6 +1,6 @@
 package com.github.maxopoly.artemis;
 
-import java.util.EnumSet;
+import com.github.maxopoly.zeus.model.ConnectedMapState;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,18 +10,14 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import vg.civcraft.mc.civmodcore.inventory.items.MaterialUtils;
 
-import com.destroystokyo.paper.MaterialTags;
-import com.github.maxopoly.zeus.model.ConnectedMapState;
-
-import vg.civcraft.mc.civmodcore.api.MaterialAPI;
 
 public class RandomSpawnHandler {
 
@@ -103,7 +99,7 @@ public class RandomSpawnHandler {
 			int z = pos.getBlockZ() & 0xF;
 			for (int y = maxY; y >= minY; y--) {
 				Block block = chunk.getBlock(x, y, z);
-				if (MaterialAPI.isAir(block.getType())) {
+				if (MaterialUtils.isAir(block.getType())) {
 					airCount++;
 					continue;
 				}

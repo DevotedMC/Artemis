@@ -1,11 +1,10 @@
 package com.github.maxopoly.artemis.rabbit.session;
 
-import java.util.UUID;
-
 import com.github.maxopoly.zeus.rabbit.sessions.PlayerDataTransferSession;
 import com.github.maxopoly.zeus.servers.ConnectedServer;
+import java.util.UUID;
+import net.minecraft.world.entity.player.EntityHuman;
 
-import net.minecraft.server.v1_16_R3.EntityHuman;
 
 public class ArtemisPlayerDataTransferSession extends PlayerDataTransferSession {
 

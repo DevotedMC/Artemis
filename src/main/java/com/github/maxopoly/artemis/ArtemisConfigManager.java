@@ -1,5 +1,8 @@
 package com.github.maxopoly.artemis;
 
+import static vg.civcraft.mc.civmodcore.config.ConfigHelper.parseMaterialList;
+
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +16,9 @@ import com.github.maxopoly.zeus.rabbit.ZeusRabbitGateway;
 import com.rabbitmq.client.ConnectionFactory;
 
 import vg.civcraft.mc.civmodcore.ACivMod;
-import vg.civcraft.mc.civmodcore.CoreConfigManager;
+import vg.civcraft.mc.civmodcore.config.ConfigParser;
 
-public class ArtemisConfigManager extends CoreConfigManager {
+public class ArtemisConfigManager extends ConfigParser {
 
 	private ConfigurationSection config;
 	private ConnectionFactory connectionFactory;
